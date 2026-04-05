@@ -1,1 +1,1902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ICF Quran Academy — Hifz Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+:root {
+  --teal-900: #0d2b2b;
+  --teal-800: #133d3d;
+  --teal-700: #1a5050;
+  --teal-600: #216464;
+  --teal-500: #2a7d7d;
+  --teal-400: #3a9d9d;
+  --teal-300: #60bcbc;
+  --teal-200: #97d8d8;
+  --teal-100: #d0efef;
+  --teal-50:  #eef8f8;
+  --gold-700: #8a6200;
+  --gold-600: #b07d00;
+  --gold-500: #c9910d;
+  --gold-400: #dea827;
+  --gold-300: #e9c05a;
+  --gold-200: #f2d88a;
+  --gold-100: #faeec6;
+  --gold-50:  #fdf8eb;
+  --bg: #f4f7f7;
+  --surface: #ffffff;
+  --surface2: #f0f5f5;
+  --border: #d4e4e4;
+  --text-primary: #0d2b2b;
+  --text-secondary: #3a5f5f;
+  --text-muted: #7a9a9a;
+  --shadow-sm: 0 1px 3px rgba(13,43,43,0.08);
+  --shadow-md: 0 4px 16px rgba(13,43,43,0.10);
+  --shadow-lg: 0 8px 32px rgba(13,43,43,0.13);
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-size: 14px;
+}
+h1,h2,h3,h4,h5 { font-family: 'Cormorant Garamond', serif; }
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--teal-50); }
+::-webkit-scrollbar-thumb { background: var(--teal-300); border-radius: 3px; }
 
+/* Layout */
+.app-shell { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 240px; min-width: 240px;
+  background: var(--teal-900);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  box-shadow: 2px 0 16px rgba(0,0,0,0.18);
+}
+.sidebar-logo {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-logo .academy-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; font-weight: 600;
+  color: var(--gold-300);
+  line-height: 1.3;
+}
+.sidebar-logo .teacher-name {
+  font-size: 11px; color: var(--teal-300);
+  margin-top: 4px; font-weight: 400;
+}
+.sidebar-logo .crescent {
+  font-size: 28px; margin-bottom: 8px;
+  display: block;
+}
+.sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+.nav-section-label {
+  font-size: 10px; font-weight: 600;
+  color: var(--teal-400); letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 12px 20px 4px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px;
+  color: rgba(255,255,255,0.72);
+  cursor: pointer;
+  font-size: 13.5px; font-weight: 400;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.nav-item.active {
+  background: rgba(58,157,157,0.18);
+  color: var(--gold-300);
+  border-left: 3px solid var(--gold-400);
+  font-weight: 500;
+}
+.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 11px; color: var(--teal-400);
+}
+
+/* Main content */
+.main-content {
+  margin-left: 240px;
+  flex: 1;
+  display: flex; flex-direction: column;
+  min-height: 100vh;
+}
+.page-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+.page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 600;
+  color: var(--teal-800);
+}
+.page-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.page-body { padding: 28px 32px; flex: 1; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--teal-800);
+}
+.card-subtitle { font-size: 12px; color: var(--text-muted); }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none; transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--teal-600); color: #fff; }
+.btn-primary:hover { background: var(--teal-500); box-shadow: 0 2px 8px rgba(42,125,125,0.3); }
+.btn-gold { background: var(--gold-500); color: #fff; }
+.btn-gold:hover { background: var(--gold-600); }
+.btn-outline {
+  background: transparent; color: var(--teal-600);
+  border: 1.5px solid var(--teal-400);
+}
+.btn-outline:hover { background: var(--teal-50); }
+.btn-ghost { background: transparent; color: var(--text-secondary); }
+.btn-ghost:hover { background: var(--surface2); }
+.btn-danger { background: #c0392b; color: #fff; }
+.btn-danger:hover { background: #a93226; }
+.btn-sm { padding: 5px 11px; font-size: 12px; border-radius: 6px; }
+.btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 5px; }
+.btn-icon { padding: 7px; border-radius: 7px; }
+
+/* Status badges */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 500;
+}
+.badge-present { background: #d4edda; color: #1a6630; }
+.badge-tardy { background: #fff3cd; color: #856404; }
+.badge-absent { background: #f8d7da; color: #842029; }
+.badge-pass { background: #d1e7dd; color: #0a3622; }
+.badge-fail { background: #f8d7da; color: #842029; }
+.badge-repeat { background: #fff3cd; color: #664d03; }
+.badge-teal { background: var(--teal-100); color: var(--teal-700); }
+.badge-gold { background: var(--gold-100); color: var(--gold-700); }
+
+/* Form elements */
+.form-group { margin-bottom: 14px; }
+.form-label {
+  display: block; font-size: 12px; font-weight: 500;
+  color: var(--text-secondary); margin-bottom: 5px;
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--text-primary); background: var(--surface);
+  transition: border-color 0.15s;
+  outline: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--teal-400);
+  box-shadow: 0 0 0 3px rgba(58,157,157,0.1);
+}
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left; padding: 10px 14px;
+  font-size: 11px; font-weight: 600;
+  color: var(--text-muted); letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px; color: var(--text-primary);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--teal-50); }
+
+/* Tabs */
+.tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+.tab {
+  padding: 10px 18px; font-size: 13px; font-weight: 500;
+  color: var(--text-muted); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  transition: all 0.15s; white-space: nowrap;
+}
+.tab:hover { color: var(--teal-600); }
+.tab.active { color: var(--teal-700); border-bottom-color: var(--teal-600); font-weight: 600; }
+
+/* Attendance buttons */
+.att-btn-group { display: flex; gap: 4px; }
+.att-btn {
+  padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500;
+  cursor: pointer; border: 1.5px solid;
+  transition: all 0.12s;
+}
+.att-btn.present { border-color: #2e7d32; color: #2e7d32; background: transparent; }
+.att-btn.present.active { background: #2e7d32; color: #fff; }
+.att-btn.tardy { border-color: #f59e0b; color: #b45309; background: transparent; }
+.att-btn.tardy.active { background: #f59e0b; color: #fff; }
+.att-btn.absent { border-color: #c0392b; color: #c0392b; background: transparent; }
+.att-btn.absent.active { background: #c0392b; color: #fff; }
+
+/* Juz Map */
+.juz-grid {
+  display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px;
+}
+.juz-cell {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600;
+  border: 2px solid var(--border);
+  transition: all 0.15s; user-select: none;
+  background: var(--surface2); color: var(--text-muted);
+  position: relative;
+}
+.juz-cell:hover { border-color: var(--teal-400); }
+.juz-cell.memorized { background: var(--teal-600); color: #fff; border-color: var(--teal-600); }
+.juz-cell.in-progress { background: var(--gold-300); color: var(--gold-800,#5a3e00); border-color: var(--gold-400); }
+.juz-cell .juz-label { font-size: 9px; position: absolute; bottom: 3px; font-weight: 400; }
+
+/* Calendar */
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+}
+.cal-day-header {
+  text-align: center; font-size: 10px; font-weight: 600;
+  color: var(--text-muted); padding: 4px 0;
+  text-transform: uppercase;
+}
+.cal-day {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; font-size: 11px; cursor: pointer;
+  color: var(--text-muted);
+}
+.cal-day.has-present { background: #d4edda; color: #1a6630; font-weight: 600; }
+.cal-day.has-tardy { background: #fff3cd; color: #856404; font-weight: 600; }
+.cal-day.has-absent { background: #f8d7da; color: #842029; font-weight: 600; }
+.cal-day.today { outline: 2px solid var(--teal-500); }
+.cal-day.other-month { opacity: 0.3; }
+
+/* Date nav */
+.date-nav {
+  display: flex; align-items: center; gap: 12px;
+}
+.date-nav-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text-secondary);
+  transition: all 0.12s;
+}
+.date-nav-btn:hover { background: var(--teal-100); color: var(--teal-700); }
+.date-display {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--teal-800);
+  min-width: 200px; text-align: center;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(13,43,43,0.55); backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 20px;
+}
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%; max-width: 600px;
+  max-height: 90vh; overflow-y: auto;
+  padding: 28px;
+  animation: modalIn 0.18s ease;
+}
+.modal-wide { max-width: 800px; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: none; } }
+.modal-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600; color: var(--teal-800);
+}
+.modal-close {
+  width: 30px; height: 30px; border-radius: 6px;
+  background: var(--surface2); border: none; cursor: pointer;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); transition: all 0.12s;
+}
+.modal-close:hover { background: var(--teal-100); color: var(--teal-700); }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+/* Stats row */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+}
+.stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px; font-weight: 700; color: var(--teal-700);
+  line-height: 1;
+}
+.stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* Awards */
+.award-card {
+  background: linear-gradient(135deg, var(--teal-800), var(--teal-900));
+  border-radius: var(--radius-lg); padding: 20px;
+  color: #fff; position: relative; overflow: hidden;
+}
+.award-card::before {
+  content: '✦'; position: absolute; right: 16px; top: 12px;
+  font-size: 48px; opacity: 0.08; color: var(--gold-300);
+}
+.award-title { font-family: 'Cormorant Garamond', serif; font-size: 13px; color: var(--gold-300); font-weight: 500; letter-spacing: 0.5px; }
+.award-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; margin: 4px 0; }
+.award-reason { font-size: 11px; color: rgba(255,255,255,0.65); }
+
+/* Email preview */
+.email-preview {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  font-size: 13px; line-height: 1.7; white-space: pre-wrap;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Progress bar */
+.progress-bar { background: var(--teal-100); border-radius: 20px; height: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal-500), var(--teal-400)); border-radius: 20px; transition: width 0.3s; }
+
+/* Search */
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 9px; padding: 7px 12px;
+}
+.search-bar input {
+  border: none; background: transparent; outline: none;
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  color: var(--text-primary); flex: 1;
+}
+.search-icon { color: var(--text-muted); font-size: 15px; }
+
+/* Alert / AI box */
+.ai-box {
+  background: linear-gradient(135deg, var(--gold-50), #fffdf0);
+  border: 1.5px solid var(--gold-300); border-radius: var(--radius);
+  padding: 14px 16px; margin-top: 12px;
+}
+.ai-box-label { font-size: 10px; font-weight: 600; color: var(--gold-600); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+
+/* Misc */
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+.text-muted { color: var(--text-muted); }
+.text-small { font-size: 12px; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.justify-between { justify-content: space-between; }
+.mt-2 { margin-top: 8px; }
+.mb-2 { margin-bottom: 8px; }
+.empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+.empty-state .empty-msg { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--text-secondary); }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px; font-size: 11px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text-secondary); cursor: pointer;
+  transition: all 0.12s;
+}
+.chip.active { background: var(--teal-600); border-color: var(--teal-600); color: #fff; }
+.section-divider {
+  display: flex; align-items: center; gap: 10px; margin: 20px 0 14px;
+}
+.section-divider span {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; font-weight: 600; color: var(--teal-700); white-space: nowrap;
+}
+.section-divider::before, .section-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+/* Toast */
+.toast-container {
+  position: fixed; bottom: 24px; right: 24px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 9999; pointer-events: none;
+}
+.toast {
+  background: var(--teal-900); color: #fff;
+  padding: 12px 18px; border-radius: 10px;
+  font-size: 13px; box-shadow: var(--shadow-lg);
+  display: flex; align-items: center; gap: 8px;
+  animation: toastIn 0.2s ease;
+  pointer-events: all;
+}
+.toast.success { background: #1a6630; }
+.toast.error { background: #842029; }
+@keyframes toastIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef, useMemo } = React;
+
+// ============================================================
+// DATA & CONSTANTS
+// ============================================================
+const SURAHS = [
+  {num:1,name:"Al-Fatihah",ayahs:7,juz:1},{num:2,name:"Al-Baqarah",ayahs:286,juz:1},
+  {num:3,name:"Ali 'Imran",ayahs:200,juz:3},{num:4,name:"An-Nisa",ayahs:176,juz:4},
+  {num:5,name:"Al-Ma'idah",ayahs:120,juz:6},{num:6,name:"Al-An'am",ayahs:165,juz:7},
+  {num:7,name:"Al-A'raf",ayahs:206,juz:8},{num:8,name:"Al-Anfal",ayahs:75,juz:9},
+  {num:9,name:"At-Tawbah",ayahs:129,juz:10},{num:10,name:"Yunus",ayahs:109,juz:11},
+  {num:11,name:"Hud",ayahs:123,juz:11},{num:12,name:"Yusuf",ayahs:111,juz:12},
+  {num:13,name:"Ar-Ra'd",ayahs:43,juz:13},{num:14,name:"Ibrahim",ayahs:52,juz:13},
+  {num:15,name:"Al-Hijr",ayahs:99,juz:14},{num:16,name:"An-Nahl",ayahs:128,juz:14},
+  {num:17,name:"Al-Isra",ayahs:111,juz:15},{num:18,name:"Al-Kahf",ayahs:110,juz:15},
+  {num:19,name:"Maryam",ayahs:98,juz:16},{num:20,name:"Ta-Ha",ayahs:135,juz:16},
+  {num:21,name:"Al-Anbiya",ayahs:112,juz:17},{num:22,name:"Al-Hajj",ayahs:78,juz:17},
+  {num:23,name:"Al-Mu'minun",ayahs:118,juz:18},{num:24,name:"An-Nur",ayahs:64,juz:18},
+  {num:25,name:"Al-Furqan",ayahs:77,juz:18},{num:26,name:"Ash-Shu'ara",ayahs:227,juz:19},
+  {num:27,name:"An-Naml",ayahs:93,juz:19},{num:28,name:"Al-Qasas",ayahs:88,juz:20},
+  {num:29,name:"Al-'Ankabut",ayahs:69,juz:20},{num:30,name:"Ar-Rum",ayahs:60,juz:21},
+  {num:31,name:"Luqman",ayahs:34,juz:21},{num:32,name:"As-Sajdah",ayahs:30,juz:21},
+  {num:33,name:"Al-Ahzab",ayahs:73,juz:21},{num:34,name:"Saba",ayahs:54,juz:22},
+  {num:35,name:"Fatir",ayahs:45,juz:22},{num:36,name:"Ya-Sin",ayahs:83,juz:22},
+  {num:37,name:"As-Saffat",ayahs:182,juz:23},{num:38,name:"Sad",ayahs:88,juz:23},
+  {num:39,name:"Az-Zumar",ayahs:75,juz:23},{num:40,name:"Ghafir",ayahs:85,juz:24},
+  {num:41,name:"Fussilat",ayahs:54,juz:24},{num:42,name:"Ash-Shura",ayahs:53,juz:25},
+  {num:43,name:"Az-Zukhruf",ayahs:89,juz:25},{num:44,name:"Ad-Dukhan",ayahs:59,juz:25},
+  {num:45,name:"Al-Jathiyah",ayahs:37,juz:25},{num:46,name:"Al-Ahqaf",ayahs:35,juz:26},
+  {num:47,name:"Muhammad",ayahs:38,juz:26},{num:48,name:"Al-Fath",ayahs:29,juz:26},
+  {num:49,name:"Al-Hujurat",ayahs:18,juz:26},{num:50,name:"Qaf",ayahs:45,juz:26},
+  {num:51,name:"Adh-Dhariyat",ayahs:60,juz:26},{num:52,name:"At-Tur",ayahs:49,juz:27},
+  {num:53,name:"An-Najm",ayahs:62,juz:27},{num:54,name:"Al-Qamar",ayahs:55,juz:27},
+  {num:55,name:"Ar-Rahman",ayahs:78,juz:27},{num:56,name:"Al-Waqi'ah",ayahs:96,juz:27},
+  {num:57,name:"Al-Hadid",ayahs:29,juz:27},{num:58,name:"Al-Mujadila",ayahs:22,juz:28},
+  {num:59,name:"Al-Hashr",ayahs:24,juz:28},{num:60,name:"Al-Mumtahanah",ayahs:13,juz:28},
+  {num:61,name:"As-Saf",ayahs:14,juz:28},{num:62,name:"Al-Jumu'ah",ayahs:11,juz:28},
+  {num:63,name:"Al-Munafiqun",ayahs:11,juz:28},{num:64,name:"At-Taghabun",ayahs:18,juz:28},
+  {num:65,name:"At-Talaq",ayahs:12,juz:28},{num:66,name:"At-Tahrim",ayahs:12,juz:28},
+  {num:67,name:"Al-Mulk",ayahs:30,juz:29},{num:68,name:"Al-Qalam",ayahs:52,juz:29},
+  {num:69,name:"Al-Haqqah",ayahs:52,juz:29},{num:70,name:"Al-Ma'arij",ayahs:44,juz:29},
+  {num:71,name:"Nuh",ayahs:28,juz:29},{num:72,name:"Al-Jinn",ayahs:28,juz:29},
+  {num:73,name:"Al-Muzzammil",ayahs:20,juz:29},{num:74,name:"Al-Muddaththir",ayahs:56,juz:29},
+  {num:75,name:"Al-Qiyamah",ayahs:40,juz:29},{num:76,name:"Al-Insan",ayahs:31,juz:29},
+  {num:77,name:"Al-Mursalat",ayahs:50,juz:29},{num:78,name:"An-Naba",ayahs:40,juz:30},
+  {num:79,name:"An-Nazi'at",ayahs:46,juz:30},{num:80,name:"Abasa",ayahs:42,juz:30},
+  {num:81,name:"At-Takwir",ayahs:29,juz:30},{num:82,name:"Al-Infitar",ayahs:19,juz:30},
+  {num:83,name:"Al-Mutaffifin",ayahs:36,juz:30},{num:84,name:"Al-Inshiqaq",ayahs:25,juz:30},
+  {num:85,name:"Al-Buruj",ayahs:22,juz:30},{num:86,name:"At-Tariq",ayahs:17,juz:30},
+  {num:87,name:"Al-A'la",ayahs:19,juz:30},{num:88,name:"Al-Ghashiyah",ayahs:26,juz:30},
+  {num:89,name:"Al-Fajr",ayahs:30,juz:30},{num:90,name:"Al-Balad",ayahs:20,juz:30},
+  {num:91,name:"Ash-Shams",ayahs:15,juz:30},{num:92,name:"Al-Layl",ayahs:21,juz:30},
+  {num:93,name:"Ad-Duha",ayahs:11,juz:30},{num:94,name:"Ash-Sharh",ayahs:8,juz:30},
+  {num:95,name:"At-Tin",ayahs:8,juz:30},{num:96,name:"Al-Alaq",ayahs:19,juz:30},
+  {num:97,name:"Al-Qadr",ayahs:5,juz:30},{num:98,name:"Al-Bayyinah",ayahs:8,juz:30},
+  {num:99,name:"Az-Zalzalah",ayahs:8,juz:30},{num:100,name:"Al-Adiyat",ayahs:11,juz:30},
+  {num:101,name:"Al-Qari'ah",ayahs:11,juz:30},{num:102,name:"At-Takathur",ayahs:8,juz:30},
+  {num:103,name:"Al-Asr",ayahs:3,juz:30},{num:104,name:"Al-Humazah",ayahs:9,juz:30},
+  {num:105,name:"Al-Fil",ayahs:5,juz:30},{num:106,name:"Quraysh",ayahs:4,juz:30},
+  {num:107,name:"Al-Ma'un",ayahs:7,juz:30},{num:108,name:"Al-Kawthar",ayahs:3,juz:30},
+  {num:109,name:"Al-Kafirun",ayahs:6,juz:30},{num:110,name:"An-Nasr",ayahs:3,juz:30},
+  {num:111,name:"Al-Masad",ayahs:5,juz:30},{num:112,name:"Al-Ikhlas",ayahs:4,juz:30},
+  {num:113,name:"Al-Falaq",ayahs:5,juz:30},{num:114,name:"An-Nas",ayahs:6,juz:30},
+];
+
+const QUARTERS = ["1st Quarter (Rub' 1)","2nd Quarter (Rub' 2)","3rd Quarter (Rub' 3)","4th Quarter (Rub' 4)"];
+const MISTAKE_TYPES = ["Pronunciation (Makharij)","Tajweed Rule","Skipped Ayah","Wrong Word","Hesitation","Memory Lapse","Fluency","Other"];
+const INCIDENT_TYPES = ["Behavioral","Attendance Concern","Academic","Parent Communication","General Concern","Other"];
+
+// LS helpers
+const ls = {
+  get: (k, d=null) => { try { const v=localStorage.getItem(k); return v?JSON.parse(v):d; } catch{return d;} },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch{} },
+};
+
+const uid = () => '_' + Math.random().toString(36).slice(2,9) + Date.now().toString(36);
+
+const fmt = {
+  date: (d) => { if(!d) return ''; const dt=new Date(d+'T00:00:00'); return dt.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}); },
+  shortDate: (d) => { if(!d) return ''; const dt=new Date(d+'T00:00:00'); return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); },
+  today: () => new Date().toISOString().split('T')[0],
+  addDays: (d, n) => { const dt=new Date(d+'T00:00:00'); dt.setDate(dt.getDate()+n); return dt.toISOString().split('T')[0]; },
+};
+
+// ============================================================
+// TOAST
+// ============================================================
+function Toast({toasts}) {
+  return <div className="toast-container">
+    {toasts.map(t => <div key={t.id} className={`toast ${t.type||''}`}>
+      <span>{t.type==='success'?'✓':t.type==='error'?'✕':'ℹ'}</span>{t.msg}
+    </div>)}
+  </div>;
+}
+
+// ============================================================
+// SURAH/AYAH PICKER
+// ============================================================
+function SurahAyahPicker({label, value, onChange}) {
+  const surahNum = value?.surah || 1;
+  const ayah = value?.ayah || 1;
+  const surah = SURAHS.find(s=>s.num===surahNum)||SURAHS[0];
+  const ayahs = Array.from({length:surah.ayahs},(_,i)=>i+1);
+  return <div>
+    {label && <div className="form-label">{label}</div>}
+    <div style={{display:'flex',gap:8}}>
+      <select className="form-select" style={{flex:2}} value={surahNum}
+        onChange={e=>onChange({surah:+e.target.value,ayah:1})}>
+        {SURAHS.map(s=><option key={s.num} value={s.num}>{s.num}. {s.name}</option>)}
+      </select>
+      <select className="form-select" style={{flex:1}} value={ayah}
+        onChange={e=>onChange({surah:surahNum,ayah:+e.target.value})}>
+        {ayahs.map(a=><option key={a} value={a}>Ayah {a}</option>)}
+      </select>
+    </div>
+  </div>;
+}
+
+function JuzQuarterPicker({label, value, onChange}) {
+  const juz = value?.juz || 1;
+  const quarter = value?.quarter || 0;
+  return <div>
+    {label && <div className="form-label">{label}</div>}
+    <div style={{display:'flex',gap:8}}>
+      <select className="form-select" style={{flex:1}} value={juz}
+        onChange={e=>onChange({juz:+e.target.value,quarter})}>
+        {Array.from({length:30},(_,i)=>i+1).map(j=><option key={j} value={j}>Juz {j}</option>)}
+      </select>
+      <select className="form-select" style={{flex:2}} value={quarter}
+        onChange={e=>onChange({juz,quarter:+e.target.value})}>
+        {QUARTERS.map((q,i)=><option key={i} value={i}>{q}</option>)}
+      </select>
+    </div>
+  </div>;
+}
+
+// ============================================================
+// MAIN APP
+// ============================================================
+function App() {
+  // State
+  const [page, setPage] = useState('dashboard');
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [students, setStudents] = useState(() => ls.get('hifz_students', []));
+  const [sessions, setSessions] = useState(() => ls.get('hifz_sessions', []));
+  const [attendance, setAttendance] = useState(() => ls.get('hifz_attendance', {}));
+  const [incidents, setIncidents] = useState(() => ls.get('hifz_incidents', []));
+  const [juzTests, setJuzTests] = useState(() => ls.get('hifz_juzTests', []));
+  const [goals, setGoals] = useState(() => ls.get('hifz_goals', []));
+  const [awards, setAwards] = useState(() => ls.get('hifz_awards', {week:null,month:null}));
+  const [toasts, setToasts] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(fmt.today());
+
+  // Persist
+  useEffect(()=>ls.set('hifz_students',students),[students]);
+  useEffect(()=>ls.set('hifz_sessions',sessions),[sessions]);
+  useEffect(()=>ls.set('hifz_attendance',attendance),[attendance]);
+  useEffect(()=>ls.set('hifz_incidents',incidents),[incidents]);
+  useEffect(()=>ls.set('hifz_juzTests',juzTests),[juzTests]);
+  useEffect(()=>ls.set('hifz_goals',goals),[goals]);
+  useEffect(()=>ls.set('hifz_awards',awards),[awards]);
+
+  const toast = (msg,type='success') => {
+    const id=uid();
+    setToasts(p=>[...p,{id,msg,type}]);
+    setTimeout(()=>setToasts(p=>p.filter(t=>t.id!==id)),3000);
+  };
+
+  const navTo = (p, sid=null) => { setPage(p); if(sid) setSelectedStudentId(sid); };
+
+  const navProps = { students, sessions, attendance, incidents, juzTests, goals, awards,
+    setStudents, setSessions, setAttendance, setIncidents, setJuzTests, setGoals, setAwards,
+    toast, navTo, selectedStudentId, setSelectedStudentId, selectedDate, setSelectedDate };
+
+  const NAV = [
+    {section:'Main'},
+    {id:'dashboard',label:'Dashboard',icon:'🏠'},
+    {id:'students',label:'Students',icon:'👤'},
+    {id:'reports',label:'Reports',icon:'📊'},
+  ];
+
+  return <div className="app-shell">
+    <aside className="sidebar">
+      <div className="sidebar-logo">
+        <span className="crescent">☪</span>
+        <div className="academy-name">Islamic Center of Frisco<br/>Quran Academy</div>
+        <div className="teacher-name">Aalimah Sadaf Kamani</div>
+      </div>
+      <nav className="sidebar-nav">
+        {NAV.map((n,i) => n.section
+          ? <div key={i} className="nav-section-label">{n.section}</div>
+          : <div key={n.id} className={`nav-item ${page===n.id||((page==='student-detail')&&n.id==='students')?'active':''}`}
+              onClick={()=>navTo(n.id)}>
+              <span className="nav-icon">{n.icon}</span>{n.label}
+            </div>
+        )}
+      </nav>
+      <div className="sidebar-footer">Hifz Management v1.0</div>
+    </aside>
+    <main className="main-content">
+      {page==='dashboard' && <DashboardPage {...navProps}/>}
+      {page==='students' && <StudentsPage {...navProps}/>}
+      {page==='student-detail' && <StudentDetailPage {...navProps}/>}
+      {page==='reports' && <ReportsPage {...navProps}/>}
+    </main>
+    <Toast toasts={toasts}/>
+  </div>;
+}
+
+// ============================================================
+// DASHBOARD PAGE
+// ============================================================
+function DashboardPage(props) {
+  const {students,sessions,attendance,incidents,awards,setAttendance,setAwards,selectedDate,setSelectedDate,toast,navTo} = props;
+  const [showAIModal, setShowAIModal] = useState(null);
+  const [aiResult, setAiResult] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const dateAtt = attendance[selectedDate] || {};
+  const dateSessions = sessions.filter(s=>s.date===selectedDate);
+  const dateIncidents = incidents.filter(i=>i.date===selectedDate);
+
+  const attCounts = {
+    present: students.filter(s=>dateAtt[s.id]==='present').length,
+    tardy: students.filter(s=>dateAtt[s.id]==='tardy').length,
+    absent: students.filter(s=>dateAtt[s.id]==='absent').length,
+    unmarked: students.filter(s=>!dateAtt[s.id]).length,
+  };
+
+  const setStudentAtt = (sid, status) => {
+    setAttendance(prev => ({
+      ...prev,
+      [selectedDate]: { ...prev[selectedDate], [sid]: prev[selectedDate]?.[sid]===status ? null : status }
+    }));
+  };
+
+  const getAISuggestion = async (type) => {
+    setAiLoading(true); setAiResult('');
+    const context = students.map(s=>{
+      const sess = sessions.filter(x=>x.studentId===s.id);
+      const attList = Object.values(attendance).map(d=>d[s.id]).filter(Boolean);
+      const present = attList.filter(x=>x==='present').length;
+      const total = attList.length;
+      const juzDone = (s.juzMap||[]).filter(x=>x==='memorized').length;
+      return `${s.name}: ${sess.length} sessions, ${present}/${total} attendance, ${juzDone}/30 juz memorized`;
+    }).join('\n');
+    const prompt = `You are a Quran Academy teacher assistant. Based on these student records, suggest the best Student of the ${type} and explain why in 2-3 sentences. Be encouraging and mention specific achievements.\n\nStudents:\n${context}\n\nRespond with: "Student of the ${type}: [Name]\nReason: [explanation]"`;
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompt}]})
+      });
+      const d = await res.json();
+      setAiResult(d.content?.[0]?.text || 'Unable to generate suggestion.');
+    } catch(e) { setAiResult('AI suggestion unavailable. Please check connection.'); }
+    setAiLoading(false);
+  };
+
+  const saveAward = (type) => {
+    const match = aiResult.match(/Student of the (?:Week|Month):\s*(.+)/i);
+    const reasonMatch = aiResult.match(/Reason:\s*(.+)/is);
+    if(match) {
+      setAwards(prev=>({...prev,[type.toLowerCase()]:{name:match[1].trim(),reason:reasonMatch?.[1]?.trim()||'',date:selectedDate}}));
+      setShowAIModal(null); setAiResult('');
+      toast('Award saved!');
+    }
+  };
+
+  return <>
+    <div className="page-header">
+      <div>
+        <div className="page-title">Dashboard</div>
+        <div className="page-subtitle">Class overview and attendance</div>
+      </div>
+      <div className="date-nav">
+        <button className="date-nav-btn" onClick={()=>setSelectedDate(fmt.addDays(selectedDate,-1))}>‹</button>
+        <div className="date-display">{fmt.date(selectedDate)}</div>
+        <button className="date-nav-btn" onClick={()=>setSelectedDate(fmt.addDays(selectedDate,1))}>›</button>
+        <button className="btn btn-outline btn-sm" onClick={()=>setSelectedDate(fmt.today())}>Today</button>
+      </div>
+    </div>
+    <div className="page-body">
+      {/* Stats */}
+      <div className="stats-row">
+        <div className="stat-card"><div className="stat-value">{students.length}</div><div className="stat-label">Total Students</div></div>
+        <div className="stat-card"><div className="stat-value" style={{color:'#2e7d32'}}>{attCounts.present}</div><div className="stat-label">Present</div></div>
+        <div className="stat-card"><div className="stat-value" style={{color:'#f59e0b'}}>{attCounts.tardy}</div><div className="stat-label">Tardy</div></div>
+        <div className="stat-card"><div className="stat-value" style={{color:'#c0392b'}}>{attCounts.absent}</div><div className="stat-label">Absent</div></div>
+      </div>
+
+      {/* Attendance + Awards row */}
+      <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:20,marginBottom:20}}>
+        {/* Attendance */}
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Class Attendance — {fmt.shortDate(selectedDate)}</div>
+            <span className="badge badge-teal">{attCounts.unmarked} unmarked</span>
+          </div>
+          {students.length===0
+            ? <div className="empty-state"><div className="empty-icon">👥</div><div className="empty-msg">No students yet. Add students first.</div></div>
+            : <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Student</th><th>Juz Progress</th><th>Attendance</th></tr></thead>
+                  <tbody>
+                    {students.map(s=>{
+                      const cur = dateAtt[s.id];
+                      const juzDone=(s.juzMap||[]).filter(x=>x==='memorized').length;
+                      return <tr key={s.id}>
+                        <td>
+                          <span style={{cursor:'pointer',color:'var(--teal-600)',fontWeight:500}} onClick={()=>navTo('student-detail',s.id)}>
+                            {s.name}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{display:'flex',alignItems:'center',gap:8}}>
+                            <div className="progress-bar" style={{width:80}}>
+                              <div className="progress-fill" style={{width:`${(juzDone/30)*100}%`}}/>
+                            </div>
+                            <span className="text-small text-muted">{juzDone}/30</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="att-btn-group">
+                            {['present','tardy','absent'].map(status=>(
+                              <button key={status} className={`att-btn ${status} ${cur===status?'active':''}`}
+                                onClick={()=>setStudentAtt(s.id,status)}>
+                                {status.charAt(0).toUpperCase()+status.slice(1)}
+                              </button>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>;
+                    })}
+                  </tbody>
+                </table>
+              </div>
+          }
+        </div>
+
+        {/* Awards & Summary */}
+        <div style={{display:'flex',flexDirection:'column',gap:16}}>
+          {/* Student of the Week */}
+          <div className="award-card">
+            <div className="award-title">⭐ Student of the Week</div>
+            {awards.week
+              ? <><div className="award-name">{awards.week.name}</div><div className="award-reason">{awards.week.reason}</div></>
+              : <div className="award-reason" style={{marginTop:4}}>Not yet selected</div>
+            }
+            <button className="btn btn-gold btn-sm" style={{marginTop:12}} onClick={()=>setShowAIModal('Week')}>✨ AI Suggest</button>
+          </div>
+
+          {/* Student of the Month */}
+          <div className="award-card" style={{background:'linear-gradient(135deg,#5a3200,#3d2200)'}}>
+            <div className="award-title">🏆 Student of the Month</div>
+            {awards.month
+              ? <><div className="award-name">{awards.month.name}</div><div className="award-reason">{awards.month.reason}</div></>
+              : <div className="award-reason" style={{marginTop:4}}>Not yet selected</div>
+            }
+            <button className="btn btn-gold btn-sm" style={{marginTop:12}} onClick={()=>setShowAIModal('Month')}>✨ AI Suggest</button>
+          </div>
+
+          {/* Day Summary */}
+          <div className="card" style={{marginBottom:0}}>
+            <div className="card-title" style={{marginBottom:12}}>Day Summary</div>
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:13}}>
+                <span className="text-muted">Sessions logged</span>
+                <strong>{dateSessions.length}</strong>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:13}}>
+                <span className="text-muted">Incidents</span>
+                <strong style={{color:dateIncidents.length>0?'#c0392b':undefined}}>{dateIncidents.length}</strong>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:13}}>
+                <span className="text-muted">Late/Left early</span>
+                <strong>{dateSessions.filter(s=>s.lateSabaq||s.leftEarly||s.lateFromLunch).length}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sessions + Incidents summary for day */}
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Sessions — {fmt.shortDate(selectedDate)}</div>
+          </div>
+          {dateSessions.length===0
+            ? <div className="empty-state" style={{padding:'24px 0'}}><div className="empty-icon" style={{fontSize:28}}>📖</div><div className="empty-msg" style={{fontSize:14}}>No sessions logged</div></div>
+            : <div className="table-wrap"><table>
+                <thead><tr><th>Student</th><th>Sabaq</th><th>Sabqi</th><th>Manzil</th></tr></thead>
+                <tbody>
+                  {dateSessions.map(s=>{
+                    const stu=props.students.find(x=>x.id===s.studentId);
+                    return <tr key={s.id}>
+                      <td style={{cursor:'pointer',color:'var(--teal-600)'}} onClick={()=>navTo('student-detail',s.studentId)}>{stu?.name||'?'}</td>
+                      <td style={{fontSize:12}}>{s.sabaqMode==='surah'?`S${s.sabaqStart?.surah}:${s.sabaqStart?.ayah}`:`Juz${s.sabaqStart?.juz}Q${(s.sabaqStart?.quarter||0)+1}`}</td>
+                      <td><span className={`badge badge-${s.sabqiResult||'teal'}`}>{s.sabqiResult||'—'}</span></td>
+                      <td><span className={`badge badge-${s.manzilResult||'teal'}`}>{s.manzilResult||'—'}</span></td>
+                    </tr>;
+                  })}
+                </tbody>
+              </table></div>
+          }
+        </div>
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Incidents — {fmt.shortDate(selectedDate)}</div>
+          </div>
+          {dateIncidents.length===0
+            ? <div className="empty-state" style={{padding:'24px 0'}}><div className="empty-icon" style={{fontSize:28}}>📋</div><div className="empty-msg" style={{fontSize:14}}>No incidents</div></div>
+            : dateIncidents.map(inc=>{
+                const stu=props.students.find(x=>x.id===inc.studentId);
+                return <div key={inc.id} style={{padding:'10px 0',borderBottom:'1px solid var(--border)'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
+                    <span style={{fontWeight:500,color:'var(--teal-600)',cursor:'pointer'}} onClick={()=>navTo('student-detail',inc.studentId)}>{stu?.name}</span>
+                    <span className="badge badge-absent">{inc.type}</span>
+                  </div>
+                  <div style={{fontSize:12,color:'var(--text-muted)'}}>{inc.description?.slice(0,80)}{inc.description?.length>80?'...':''}</div>
+                </div>;
+              })
+          }
+        </div>
+      </div>
+    </div>
+
+    {/* AI Modal */}
+    {showAIModal && <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowAIModal(null)}>
+      <div className="modal">
+        <div className="modal-header">
+          <div className="modal-title">✨ AI — Student of the {showAIModal}</div>
+          <button className="modal-close" onClick={()=>{setShowAIModal(null);setAiResult('');}}>×</button>
+        </div>
+        {!aiResult && !aiLoading && <div>
+          <p style={{fontSize:13,color:'var(--text-secondary)',marginBottom:16}}>
+            Let AI analyze all student records and suggest the most deserving student of the {showAIModal} with a reason.
+          </p>
+          <button className="btn btn-gold" onClick={()=>getAISuggestion(showAIModal)}>✨ Generate Suggestion</button>
+        </div>}
+        {aiLoading && <div style={{textAlign:'center',padding:'32px 0',color:'var(--text-muted)'}}>Analyzing student records…</div>}
+        {aiResult && !aiLoading && <>
+          <div className="ai-box">
+            <div className="ai-box-label">AI Suggestion</div>
+            <div style={{fontSize:14,lineHeight:1.7,color:'var(--text-primary)',whiteSpace:'pre-wrap'}}>{aiResult}</div>
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-ghost" onClick={()=>setAiResult('')}>Regenerate</button>
+            <button className="btn btn-gold" onClick={()=>saveAward(showAIModal)}>Save Award</button>
+          </div>
+        </>}
+      </div>
+    </div>}
+  </>;
+}
+
+// ============================================================
+// STUDENTS PAGE
+// ============================================================
+function StudentsPage(props) {
+  const {students,setStudents,sessions,toast,navTo} = props;
+  const [search,setSearch]=useState('');
+  const [sortBy,setSortBy]=useState('name');
+  const [showAdd,setShowAdd]=useState(false);
+  const [form,setForm]=useState({name:'',parentName:'',email:'',phone:'',dob:'',enrollDate:fmt.today(),notes:''});
+
+  const filtered = useMemo(()=>{
+    let list=[...students];
+    if(search) list=list.filter(s=>s.name.toLowerCase().includes(search.toLowerCase())||s.parentName?.toLowerCase().includes(search.toLowerCase()));
+    if(sortBy==='name') list.sort((a,b)=>a.name.localeCompare(b.name));
+    if(sortBy==='juz') list.sort((a,b)=>((b.juzMap||[]).filter(x=>x==='memorized').length)-((a.juzMap||[]).filter(x=>x==='memorized').length));
+    return list;
+  },[students,search,sortBy]);
+
+  const addStudent = () => {
+    if(!form.name.trim()){toast('Name is required','error');return;}
+    const s={id:uid(),...form,juzMap:Array(30).fill(null)};
+    setStudents(prev=>[...prev,s]);
+    setForm({name:'',parentName:'',email:'',phone:'',dob:'',enrollDate:fmt.today(),notes:''});
+    setShowAdd(false); toast('Student added!');
+  };
+
+  const deleteStudent = (id) => {
+    if(!window.confirm('Delete this student? All their data will be removed.')) return;
+    setStudents(prev=>prev.filter(s=>s.id!==id));
+    toast('Student removed');
+  };
+
+  return <>
+    <div className="page-header">
+      <div><div className="page-title">Students</div><div className="page-subtitle">{students.length} enrolled</div></div>
+      <button className="btn btn-primary" onClick={()=>setShowAdd(true)}>+ Add Student</button>
+    </div>
+    <div className="page-body">
+      <div style={{display:'flex',gap:12,marginBottom:20,alignItems:'center'}}>
+        <div className="search-bar" style={{flex:1}}>
+          <span className="search-icon">🔍</span>
+          <input placeholder="Search by name or parent…" value={search} onChange={e=>setSearch(e.target.value)}/>
+        </div>
+        <div style={{display:'flex',gap:6}}>
+          <span style={{fontSize:12,color:'var(--text-muted)',alignSelf:'center'}}>Sort:</span>
+          <button className={`chip ${sortBy==='name'?'active':''}`} onClick={()=>setSortBy('name')}>Name</button>
+          <button className={`chip ${sortBy==='juz'?'active':''}`} onClick={()=>setSortBy('juz')}>Juz Progress</button>
+        </div>
+      </div>
+      {filtered.length===0
+        ? <div className="empty-state"><div className="empty-icon">👥</div><div className="empty-msg">No students found</div></div>
+        : <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:16}}>
+            {filtered.map(s=>{
+              const juzDone=(s.juzMap||[]).filter(x=>x==='memorized').length;
+              const juzIP=(s.juzMap||[]).filter(x=>x==='in-progress').length;
+              const stuSessions=sessions.filter(x=>x.studentId===s.id).length;
+              return <div key={s.id} className="card" style={{cursor:'pointer',marginBottom:0,transition:'box-shadow 0.15s'}}
+                onClick={()=>navTo('student-detail',s.id)}
+                onMouseEnter={e=>e.currentTarget.style.boxShadow='var(--shadow-md)'}
+                onMouseLeave={e=>e.currentTarget.style.boxShadow='var(--shadow-sm)'}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+                  <div>
+                    <div style={{fontFamily:'Cormorant Garamond,serif',fontSize:18,fontWeight:600,color:'var(--teal-800)'}}>{s.name}</div>
+                    <div style={{fontSize:12,color:'var(--text-muted)',marginTop:2}}>{s.parentName||'—'}</div>
+                  </div>
+                  <button className="btn btn-ghost btn-xs" onClick={e=>{e.stopPropagation();deleteStudent(s.id)}} style={{color:'#c0392b'}}>✕</button>
+                </div>
+                <hr className="divider"/>
+                <div style={{marginBottom:8}}>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
+                    <span className="text-muted">Juz Progress</span>
+                    <span style={{fontWeight:600,color:'var(--teal-600)'}}>{juzDone}/30 memorized</span>
+                  </div>
+                  <div className="progress-bar"><div className="progress-fill" style={{width:`${(juzDone/30)*100}%`}}/></div>
+                </div>
+                <div style={{display:'flex',gap:8}}>
+                  <span className="badge badge-teal">{juzDone} done</span>
+                  {juzIP>0&&<span className="badge badge-gold">{juzIP} in progress</span>}
+                  <span className="badge" style={{background:'var(--surface2)'}}>{stuSessions} sessions</span>
+                </div>
+              </div>;
+            })}
+          </div>
+      }
+    </div>
+
+    {showAdd && <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowAdd(false)}>
+      <div className="modal">
+        <div className="modal-header">
+          <div className="modal-title">Add New Student</div>
+          <button className="modal-close" onClick={()=>setShowAdd(false)}>×</button>
+        </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label className="form-label">Student Name *</label>
+            <input className="form-input" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} placeholder="Full name"/>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Parent Name</label>
+            <input className="form-input" value={form.parentName} onChange={e=>setForm(p=>({...p,parentName:e.target.value}))} placeholder="Parent/Guardian"/>
+          </div>
+        </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input className="form-input" type="email" value={form.email} onChange={e=>setForm(p=>({...p,email:e.target.value}))} placeholder="parent@email.com"/>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Phone</label>
+            <input className="form-input" value={form.phone} onChange={e=>setForm(p=>({...p,phone:e.target.value}))} placeholder="(555) 000-0000"/>
+          </div>
+        </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label className="form-label">Date of Birth</label>
+            <input className="form-input" type="date" value={form.dob} onChange={e=>setForm(p=>({...p,dob:e.target.value}))}/>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Enrollment Date</label>
+            <input className="form-input" type="date" value={form.enrollDate} onChange={e=>setForm(p=>({...p,enrollDate:e.target.value}))}/>
+          </div>
+        </div>
+        <div className="form-group">
+          <label className="form-label">Notes</label>
+          <textarea className="form-textarea" value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))} placeholder="Any additional notes…"/>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-ghost" onClick={()=>setShowAdd(false)}>Cancel</button>
+          <button className="btn btn-primary" onClick={addStudent}>Add Student</button>
+        </div>
+      </div>
+    </div>}
+  </>;
+}
+
+// ============================================================
+// STUDENT DETAIL PAGE
+// ============================================================
+function StudentDetailPage(props) {
+  const {students,setStudents,sessions,setSessions,attendance,incidents,setIncidents,juzTests,setJuzTests,goals,setGoals,toast,navTo,selectedStudentId} = props;
+  const [tab,setTab]=useState('overview');
+  const student = students.find(s=>s.id===selectedStudentId);
+
+  if(!student) return <div className="page-body"><div className="empty-state"><div className="empty-msg">Student not found.</div></div></div>;
+
+  const updateStudent = (updates) => setStudents(prev=>prev.map(s=>s.id===selectedStudentId?{...s,...updates}:s));
+
+  const stuSessions = sessions.filter(s=>s.studentId===selectedStudentId);
+  const juzDone = (student.juzMap||[]).filter(x=>x==='memorized').length;
+  const allAtt = Object.entries(attendance).flatMap(([date,day])=>day[selectedStudentId]?[{date,status:day[selectedStudentId]}]:[]);
+
+  const TABS=[
+    {id:'overview',label:'Overview'},{id:'sessions',label:`Sessions (${stuSessions.length})`},
+    {id:'attendance',label:'Attendance'},{id:'juzmap',label:'Juz Map'},
+    {id:'patterns',label:'Patterns'},{id:'juztests',label:'Juz Tests'},
+    {id:'goals',label:'Goals'},{id:'incidents',label:'Incidents'},
+    {id:'emails',label:'Emails'},
+  ];
+
+  return <>
+    <div className="page-header">
+      <div style={{display:'flex',alignItems:'center',gap:16}}>
+        <button className="btn btn-ghost btn-sm" onClick={()=>navTo('students')}>‹ Back</button>
+        <div>
+          <div className="page-title">{student.name}</div>
+          <div className="page-subtitle">{student.parentName||'No parent info'} · Enrolled {fmt.shortDate(student.enrollDate)}</div>
+        </div>
+      </div>
+      <div style={{display:'flex',gap:8,alignItems:'center'}}>
+        <span className="badge badge-teal">{juzDone}/30 Juz</span>
+        <span className="badge badge-gold">{stuSessions.length} Sessions</span>
+      </div>
+    </div>
+    <div className="page-body">
+      <div className="tabs">
+        {TABS.map(t=><div key={t.id} className={`tab ${tab===t.id?'active':''}`} onClick={()=>setTab(t.id)}>{t.label}</div>)}
+      </div>
+      {tab==='overview' && <OverviewTab student={student} sessions={stuSessions} allAtt={allAtt} updateStudent={updateStudent}/>}
+      {tab==='sessions' && <SessionsTab student={student} sessions={stuSessions} setSessions={setSessions} toast={toast}/>}
+      {tab==='attendance' && <AttendanceTab allAtt={allAtt}/>}
+      {tab==='juzmap' && <JuzMapTab student={student} updateStudent={updateStudent} toast={toast}/>}
+      {tab==='patterns' && <PatternsTab sessions={stuSessions} student={student}/>}
+      {tab==='juztests' && <JuzTestsTab student={student} juzTests={juzTests} setJuzTests={setJuzTests} toast={toast}/>}
+      {tab==='goals' && <GoalsTab student={student} goals={goals} setGoals={setGoals} toast={toast}/>}
+      {tab==='incidents' && <IncidentsTab student={student} incidents={incidents} setIncidents={setIncidents} toast={toast}/>}
+      {tab==='emails' && <EmailsTab student={student} sessions={stuSessions} allAtt={allAtt} incidents={incidents} juzTests={juzTests} goals={goals}/>}
+    </div>
+  </>;
+}
+
+// --- Overview Tab ---
+function OverviewTab({student,sessions,allAtt,updateStudent}) {
+  const juzDone=(student.juzMap||[]).filter(x=>x==='memorized').length;
+  const presentCount=allAtt.filter(a=>a.status==='present').length;
+  const tardyCount=allAtt.filter(a=>a.status==='tardy').length;
+  const absentCount=allAtt.filter(a=>a.status==='absent').length;
+  const total=allAtt.length;
+  const attPct=total?Math.round((presentCount/total)*100):0;
+  const [editing,setEditing]=useState(false);
+  const [form,setForm]=useState({name:student.name,parentName:student.parentName||'',email:student.email||'',phone:student.phone||'',dob:student.dob||'',enrollDate:student.enrollDate||'',notes:student.notes||''});
+  const save=()=>{updateStudent(form);setEditing(false);};
+  return <div>
+    <div className="stats-row">
+      <div className="stat-card"><div className="stat-value">{juzDone}/30</div><div className="stat-label">Juz Memorized</div></div>
+      <div className="stat-card"><div className="stat-value">{sessions.length}</div><div className="stat-label">Sessions</div></div>
+      <div className="stat-card"><div className="stat-value">{attPct}%</div><div className="stat-label">Attendance Rate</div><div className="stat-sub">{absentCount} absent, {tardyCount} tardy</div></div>
+      <div className="stat-card"><div className="stat-value">{total}</div><div className="stat-label">Days Recorded</div></div>
+    </div>
+    <div className="card">
+      <div className="card-header">
+        <div className="card-title">Student Profile</div>
+        <button className="btn btn-outline btn-sm" onClick={()=>setEditing(!editing)}>{editing?'Cancel':'Edit'}</button>
+      </div>
+      {editing?<>
+        <div className="form-row">
+          <div className="form-group"><label className="form-label">Name</label><input className="form-input" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))}/></div>
+          <div className="form-group"><label className="form-label">Parent Name</label><input className="form-input" value={form.parentName} onChange={e=>setForm(p=>({...p,parentName:e.target.value}))}/></div>
+        </div>
+        <div className="form-row">
+          <div className="form-group"><label className="form-label">Email</label><input className="form-input" type="email" value={form.email} onChange={e=>setForm(p=>({...p,email:e.target.value}))}/></div>
+          <div className="form-group"><label className="form-label">Phone</label><input className="form-input" value={form.phone} onChange={e=>setForm(p=>({...p,phone:e.target.value}))}/></div>
+        </div>
+        <div className="form-row">
+          <div className="form-group"><label className="form-label">Date of Birth</label><input className="form-input" type="date" value={form.dob} onChange={e=>setForm(p=>({...p,dob:e.target.value}))}/></div>
+          <div className="form-group"><label className="form-label">Enrollment Date</label><input className="form-input" type="date" value={form.enrollDate} onChange={e=>setForm(p=>({...p,enrollDate:e.target.value}))}/></div>
+        </div>
+        <div className="form-group"><label className="form-label">Notes</label><textarea className="form-textarea" value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))}/></div>
+        <button className="btn btn-primary" onClick={save}>Save Changes</button>
+      </>:<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+        {[['Parent/Guardian',student.parentName],['Email',student.email],['Phone',student.phone],
+          ['Date of Birth',student.dob?fmt.shortDate(student.dob):'—'],
+          ['Enrollment Date',student.enrollDate?fmt.shortDate(student.enrollDate):'—'],
+          ['Notes',student.notes]
+        ].map(([l,v])=><div key={l}>
+          <div style={{fontSize:11,color:'var(--text-muted)',fontWeight:600,textTransform:'uppercase',letterSpacing:.5,marginBottom:3}}>{l}</div>
+          <div style={{fontSize:13}}>{v||'—'}</div>
+        </div>)}
+      </div>}
+    </div>
+  </div>;
+}
+
+// --- Sessions Tab ---
+function SessionsTab({student,sessions,setSessions,toast}) {
+  const [showForm,setShowForm]=useState(false);
+  const [editId,setEditId]=useState(null);
+  const [mode,setMode]=useState('surah');
+  const emptyForm=()=>({
+    date:fmt.today(), sabaqMode:'surah',
+    sabaqStart:{surah:1,ayah:1}, sabaqEnd:{surah:1,ayah:7},
+    sabaqStartJQ:{juz:1,quarter:0}, sabaqEndJQ:{juz:1,quarter:0},
+    manzilStart:{surah:1,ayah:1}, manzilEnd:{surah:1,ayah:7},
+    manzilStartJQ:{juz:1,quarter:0}, manzilEndJQ:{juz:1,quarter:0},
+    sabqiResult:'', manzilResult:'', mistakes:[], notes:'',
+    lateSabaq:false, leftEarly:false, lateFromLunch:false,
+  });
+  const [form,setForm]=useState(emptyForm());
+
+  const openEdit=(s)=>{
+    setForm({...s});setEditId(s.id);setMode(s.sabaqMode||'surah');setShowForm(true);
+  };
+  const saveSession=()=>{
+    const sess={...form,id:editId||uid(),studentId:student.id,sabaqMode:mode};
+    setSessions(prev=>editId?prev.map(s=>s.id===editId?sess:s):[...prev,sess]);
+    setShowForm(false);setEditId(null);setForm(emptyForm());
+    toast(editId?'Session updated!':'Session logged!');
+  };
+  const deleteSession=(id)=>{
+    if(!window.confirm('Delete this session?')) return;
+    setSessions(prev=>prev.filter(s=>s.id!==id));
+    toast('Session deleted');
+  };
+  const sortedSessions=[...sessions].sort((a,b)=>b.date.localeCompare(a.date));
+
+  const sabaqDesc=(s)=>{
+    if(s.sabaqMode==='juz') {
+      const sq=s.sabaqStartJQ;const eq=s.sabaqEndJQ;
+      return sq?`Juz ${sq.juz} Q${sq.quarter+1} → Juz ${eq?.juz||sq.juz} Q${(eq?.quarter||0)+1}`:'—';
+    }
+    const ss=s.sabaqStart;const se=s.sabaqEnd;
+    if(!ss)return'—';
+    const sn=SURAHS.find(x=>x.num===ss.surah)?.name||'?';
+    const en=SURAHS.find(x=>x.num===se?.surah)?.name||'?';
+    return `${sn} ${ss.ayah} → ${en} ${se?.ayah||'?'}`;
+  };
+
+  return <>
+    <div style={{display:'flex',justifyContent:'flex-end',marginBottom:16}}>
+      <button className="btn btn-primary" onClick={()=>{setShowForm(true);setEditId(null);setForm(emptyForm());}}>+ Log Session</button>
+    </div>
+    {sortedSessions.length===0
+      ? <div className="empty-state"><div className="empty-icon">📖</div><div className="empty-msg">No sessions logged yet</div></div>
+      : <div className="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Sabaq</th><th>Manzil</th><th>Sabqi</th><th>Manzil Result</th><th>Flags</th><th></th></tr></thead>
+          <tbody>
+            {sortedSessions.map(s=><tr key={s.id}>
+              <td style={{whiteSpace:'nowrap'}}>{fmt.shortDate(s.date)}</td>
+              <td style={{fontSize:12,maxWidth:180}}>{sabaqDesc(s)}</td>
+              <td style={{fontSize:12}}>{s.manzilStart?`Juz${s.manzilStart.surah||'?'}...`:'—'}</td>
+              <td><span className={`badge badge-${s.sabqiResult==='pass'?'pass':s.sabqiResult==='fail'?'fail':'teal'}`}>{s.sabqiResult||'—'}</span></td>
+              <td><span className={`badge badge-${s.manzilResult==='pass'?'pass':s.manzilResult==='fail'?'fail':'teal'}`}>{s.manzilResult||'—'}</span></td>
+              <td style={{fontSize:11}}>
+                {s.lateSabaq&&<span title="Late Sabaq">⏰</span>}
+                {s.leftEarly&&<span title="Left Early">🚶</span>}
+                {s.lateFromLunch&&<span title="Late from Lunch">🍽️</span>}
+              </td>
+              <td>
+                <div style={{display:'flex',gap:4}}>
+                  <button className="btn btn-ghost btn-xs" onClick={()=>openEdit(s)}>✏️</button>
+                  <button className="btn btn-ghost btn-xs" style={{color:'#c0392b'}} onClick={()=>deleteSession(s.id)}>🗑</button>
+                </div>
+              </td>
+            </tr>)}
+          </tbody>
+        </table></div>
+    }
+
+    {showForm && <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowForm(false)}>
+      <div className="modal modal-wide">
+        <div className="modal-header">
+          <div className="modal-title">{editId?'Edit Session':'Log Session'} — {student.name}</div>
+          <button className="modal-close" onClick={()=>setShowForm(false)}>×</button>
+        </div>
+        <div className="form-group">
+          <label className="form-label">Date</label>
+          <input className="form-input" type="date" value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))} style={{maxWidth:200}}/>
+        </div>
+        <div style={{display:'flex',gap:8,marginBottom:16}}>
+          <span style={{fontSize:12,color:'var(--text-muted)',alignSelf:'center'}}>Input mode:</span>
+          <button className={`chip ${mode==='surah'?'active':''}`} onClick={()=>setMode('surah')}>Surah + Ayah</button>
+          <button className={`chip ${mode==='juz'?'active':''}`} onClick={()=>setMode('juz')}>Juz + Quarter</button>
+        </div>
+
+        <div className="section-divider"><span>Sabaq (New Lesson)</span></div>
+        <div className="form-row">
+          {mode==='surah'
+            ?<><SurahAyahPicker label="Start" value={form.sabaqStart} onChange={v=>setForm(p=>({...p,sabaqStart:v}))}/>
+               <SurahAyahPicker label="End" value={form.sabaqEnd} onChange={v=>setForm(p=>({...p,sabaqEnd:v}))}/></>
+            :<><JuzQuarterPicker label="Start" value={form.sabaqStartJQ} onChange={v=>setForm(p=>({...p,sabaqStartJQ:v}))}/>
+               <JuzQuarterPicker label="End" value={form.sabaqEndJQ} onChange={v=>setForm(p=>({...p,sabaqEndJQ:v}))}/></>
+          }
+        </div>
+
+        <div className="section-divider"><span>Manzil (Review)</span></div>
+        <div className="form-row">
+          {mode==='surah'
+            ?<><SurahAyahPicker label="Start" value={form.manzilStart} onChange={v=>setForm(p=>({...p,manzilStart:v}))}/>
+               <SurahAyahPicker label="End" value={form.manzilEnd} onChange={v=>setForm(p=>({...p,manzilEnd:v}))}/></>
+            :<><JuzQuarterPicker label="Start" value={form.manzilStartJQ} onChange={v=>setForm(p=>({...p,manzilStartJQ:v}))}/>
+               <JuzQuarterPicker label="End" value={form.manzilEndJQ} onChange={v=>setForm(p=>({...p,manzilEndJQ:v}))}/></>
+          }
+        </div>
+
+        <div className="section-divider"><span>Results</span></div>
+        <div className="form-row">
+          <div className="form-group">
+            <label className="form-label">Sabqi Result</label>
+            <select className="form-select" value={form.sabqiResult} onChange={e=>setForm(p=>({...p,sabqiResult:e.target.value}))}>
+              <option value="">— Select —</option>
+              <option value="pass">Pass</option>
+              <option value="fail">Fail</option>
+              <option value="needs-repeat">Needs Repeat</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Manzil Result</label>
+            <select className="form-select" value={form.manzilResult} onChange={e=>setForm(p=>({...p,manzilResult:e.target.value}))}>
+              <option value="">— Select —</option>
+              <option value="pass">Pass</option>
+              <option value="fail">Fail</option>
+              <option value="needs-repeat">Needs Repeat</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Mistake Types</label>
+          <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+            {MISTAKE_TYPES.map(m=><button key={m} className={`chip ${(form.mistakes||[]).includes(m)?'active':''}`}
+              onClick={()=>setForm(p=>({...p,mistakes:(p.mistakes||[]).includes(m)?p.mistakes.filter(x=>x!==m):[...p.mistakes,m]}))}>
+              {m}
+            </button>)}
+          </div>
+        </div>
+
+        <div className="section-divider"><span>Flags</span></div>
+        <div style={{display:'flex',gap:16,marginBottom:16}}>
+          {[['lateSabaq','Late Sabaq'],['leftEarly','Left Early'],['lateFromLunch','Late from Lunch']].map(([k,l])=>(
+            <label key={k} style={{display:'flex',alignItems:'center',gap:6,fontSize:13,cursor:'pointer'}}>
+              <input type="checkbox" checked={!!form[k]} onChange={e=>setForm(p=>({...p,[k]:e.target.checked}))}/>{l}
+            </label>
+          ))}
+        </div>
+        <div className="form-group">
+          <label className="form-label">Notes</label>
+          <textarea className="form-textarea" value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))} placeholder="Additional notes…"/>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-ghost" onClick={()=>setShowForm(false)}>Cancel</button>
+          <button className="btn btn-primary" onClick={saveSession}>{editId?'Update':'Save Session'}</button>
+        </div>
+      </div>
+    </div>}
+  </>;
+}
+
+// --- Attendance Calendar Tab ---
+function AttendanceTab({allAtt}) {
+  const [viewDate,setViewDate]=useState(new Date());
+  const year=viewDate.getFullYear(), month=viewDate.getMonth();
+  const attMap={};
+  allAtt.forEach(a=>{ attMap[a.date]=a.status; });
+
+  const firstDay=new Date(year,month,1).getDay();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const prevDays=new Date(year,month,0).getDate();
+  const cells=[];
+  for(let i=firstDay-1;i>=0;i--) cells.push({day:prevDays-i,other:true});
+  for(let d=1;d<=daysInMonth;d++){
+    const key=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    cells.push({day:d,key,status:attMap[key]});
+  }
+  const remaining=42-cells.length;
+  for(let d=1;d<=remaining;d++) cells.push({day:d,other:true});
+
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const totals={present:allAtt.filter(a=>a.status==='present').length,tardy:allAtt.filter(a=>a.status==='tardy').length,absent:allAtt.filter(a=>a.status==='absent').length};
+
+  return <div>
+    <div style={{display:'flex',gap:12,marginBottom:20}}>
+      <span className="badge badge-present">✓ Present: {totals.present}</span>
+      <span className="badge badge-tardy">⏰ Tardy: {totals.tardy}</span>
+      <span className="badge badge-absent">✕ Absent: {totals.absent}</span>
+    </div>
+    <div className="card">
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+        <button className="date-nav-btn" onClick={()=>setViewDate(new Date(year,month-1,1))}>‹</button>
+        <div style={{fontFamily:'Cormorant Garamond,serif',fontSize:20,fontWeight:600,flex:1,textAlign:'center'}}>{monthNames[month]} {year}</div>
+        <button className="date-nav-btn" onClick={()=>setViewDate(new Date(year,month+1,1))}>›</button>
+      </div>
+      <div className="cal-grid">
+        {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=><div key={d} className="cal-day-header">{d}</div>)}
+        {cells.map((c,i)=>{
+          const today=fmt.today();
+          const isToday=c.key===today;
+          return <div key={i} className={`cal-day ${c.other?'other-month':''} ${c.status?'has-'+c.status:''} ${isToday?'today':''}`} title={c.status||''}>
+            {c.day}
+          </div>;
+        })}
+      </div>
+    </div>
+  </div>;
+}
+
+// --- Juz Map Tab ---
+function JuzMapTab({student,updateStudent,toast}) {
+  const juzMap = student.juzMap || Array(30).fill(null);
+
+  const cycleJuz = (i) => {
+    const cur = juzMap[i];
+    const next = cur === null ? 'memorized' : cur === 'memorized' ? 'in-progress' : null;
+    const newMap = [...juzMap]; newMap[i] = next;
+    updateStudent({juzMap: newMap});
+  };
+
+  const rightClickJuz = (e, i) => {
+    e.preventDefault();
+    const cur = juzMap[i];
+    const next = cur === 'in-progress' ? null : 'in-progress';
+    const newMap = [...juzMap]; newMap[i] = next;
+    updateStudent({juzMap: newMap});
+  };
+
+  const memorized = juzMap.filter(x=>x==='memorized').length;
+  const inProg = juzMap.filter(x=>x==='in-progress').length;
+
+  return <div>
+    <div style={{display:'flex',gap:12,marginBottom:20,alignItems:'center',flexWrap:'wrap'}}>
+      <span className="badge badge-teal" style={{fontSize:13,padding:'6px 14px'}}>✓ Memorized: {memorized}/30</span>
+      <span className="badge badge-gold" style={{fontSize:13,padding:'6px 14px'}}>⬤ In Progress: {inProg}</span>
+      <span className="text-muted text-small">Click = memorized → in-progress → clear | Right-click = toggle in-progress</span>
+    </div>
+    <div className="card">
+      <div style={{marginBottom:16}}>
+        <div className="progress-bar" style={{height:12}}>
+          <div className="progress-fill" style={{width:`${(memorized/30)*100}%`}}/>
+        </div>
+        <div style={{fontSize:12,color:'var(--text-muted)',marginTop:4}}>{Math.round((memorized/30)*100)}% complete</div>
+      </div>
+      <div className="juz-grid">
+        {Array.from({length:30},(_,i)=>{
+          const status=juzMap[i];
+          return <div key={i} className={`juz-cell ${status||''}`}
+            onClick={()=>cycleJuz(i)}
+            onContextMenu={e=>rightClickJuz(e,i)}
+            title={`Juz ${i+1} — ${status||'not started'}`}>
+            {i+1}
+            <span className="juz-label">{status==='memorized'?'✓':status==='in-progress'?'…':''}</span>
+          </div>;
+        })}
+      </div>
+    </div>
+  </div>;
+}
+
+// --- Patterns Tab ---
+function PatternsTab({sessions,student}) {
+  if(sessions.length===0) return <div className="empty-state"><div className="empty-icon">📈</div><div className="empty-msg">No sessions to analyze yet</div></div>;
+
+  const mistakeCounts = {};
+  sessions.forEach(s=>(s.mistakes||[]).forEach(m=>{ mistakeCounts[m]=(mistakeCounts[m]||0)+1; }));
+  const sortedMistakes=Object.entries(mistakeCounts).sort((a,b)=>b[1]-a[1]);
+
+  const passCount=sessions.filter(s=>s.sabqiResult==='pass').length;
+  const failCount=sessions.filter(s=>s.sabqiResult==='fail').length;
+  const repeatCount=sessions.filter(s=>s.sabqiResult==='needs-repeat').length;
+
+  const flagCounts={
+    'Late Sabaq':sessions.filter(s=>s.lateSabaq).length,
+    'Left Early':sessions.filter(s=>s.leftEarly).length,
+    'Late from Lunch':sessions.filter(s=>s.lateFromLunch).length,
+  };
+
+  return <div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+      <div className="card" style={{marginBottom:0}}>
+        <div className="card-title" style={{marginBottom:16}}>Sabqi Results</div>
+        {[['Pass',passCount,'#2e7d32'],['Fail',failCount,'#c0392b'],['Needs Repeat',repeatCount,'#f59e0b']].map(([l,c,col])=>(
+          <div key={l} style={{marginBottom:12}}>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:4}}>
+              <span>{l}</span><span style={{fontWeight:600,color:col}}>{c}</span>
+            </div>
+            <div className="progress-bar"><div style={{height:'100%',background:col,borderRadius:20,width:`${sessions.length?(c/sessions.length)*100:0}%`}}/></div>
+          </div>
+        ))}
+      </div>
+      <div className="card" style={{marginBottom:0}}>
+        <div className="card-title" style={{marginBottom:16}}>Top Mistake Patterns</div>
+        {sortedMistakes.length===0
+          ? <div className="text-muted text-small">No mistakes recorded</div>
+          : sortedMistakes.slice(0,6).map(([m,c])=>(
+            <div key={m} style={{marginBottom:10}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:3}}>
+                <span>{m}</span><span style={{fontWeight:600,color:'var(--teal-600)'}}>{c}x</span>
+              </div>
+              <div className="progress-bar"><div className="progress-fill" style={{width:`${(c/sortedMistakes[0][1])*100}%`}}/></div>
+            </div>
+          ))
+        }
+      </div>
+      <div className="card" style={{marginBottom:0}}>
+        <div className="card-title" style={{marginBottom:16}}>Behavioral Flags</div>
+        {Object.entries(flagCounts).map(([l,c])=>(
+          <div key={l} style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid var(--border)',fontSize:13}}>
+            <span>{l}</span><span style={{fontWeight:600}}>{c} times</span>
+          </div>
+        ))}
+      </div>
+      <div className="card" style={{marginBottom:0}}>
+        <div className="card-title" style={{marginBottom:16}}>Session Activity</div>
+        <div style={{fontSize:13,color:'var(--text-secondary)',lineHeight:2}}>
+          <div>Total sessions: <strong>{sessions.length}</strong></div>
+          <div>Sessions this month: <strong>{sessions.filter(s=>s.date.startsWith(fmt.today().slice(0,7))).length}</strong></div>
+          <div>Sessions this week: <strong>{sessions.filter(s=>{const d=new Date(s.date+'T00:00:00');const now=new Date();const diff=(now-d)/86400000;return diff<=7;}).length}</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+// --- Juz Tests Tab ---
+function JuzTestsTab({student,juzTests,setJuzTests,toast}) {
+  const stuTests=juzTests.filter(t=>t.studentId===student.id);
+  const [showForm,setShowForm]=useState(false);
+  const [editId,setEditId]=useState(null);
+  const [form,setForm]=useState({date:fmt.today(),juz:1,result:'',notes:''});
+
+  const save=()=>{
+    const t={...form,id:editId||uid(),studentId:student.id};
+    setJuzTests(prev=>editId?prev.map(x=>x.id===editId?t:x):[...prev,t]);
+    setShowForm(false);setEditId(null);setForm({date:fmt.today(),juz:1,result:'',notes:''});
+    toast(editId?'Test updated!':'Test recorded!');
+  };
+  const del=(id)=>{ if(!window.confirm('Delete test?'))return; setJuzTests(prev=>prev.filter(x=>x.id!==id)); toast('Deleted'); };
+  const edit=(t)=>{ setForm({...t});setEditId(t.id);setShowForm(true); };
+
+  return <>
+    <div style={{display:'flex',justifyContent:'flex-end',marginBottom:16}}>
+      <button className="btn btn-primary" onClick={()=>{setShowForm(true);setEditId(null);setForm({date:fmt.today(),juz:1,result:'',notes:''});}}>+ Record Juz Test</button>
+    </div>
+    {stuTests.length===0
+      ? <div className="empty-state"><div className="empty-icon">📝</div><div className="empty-msg">No juz tests recorded</div></div>
+      : <div className="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Juz</th><th>Result</th><th>Notes</th><th></th></tr></thead>
+          <tbody>
+            {[...stuTests].sort((a,b)=>b.date.localeCompare(a.date)).map(t=><tr key={t.id}>
+              <td>{fmt.shortDate(t.date)}</td>
+              <td>Juz {t.juz}</td>
+              <td><span className={`badge badge-${t.result}`}>{t.result}</span></td>
+              <td style={{fontSize:12,color:'var(--text-muted)'}}>{t.notes||'—'}</td>
+              <td><div style={{display:'flex',gap:4}}>
+                <button className="btn btn-ghost btn-xs" onClick={()=>edit(t)}>✏️</button>
+                <button className="btn btn-ghost btn-xs" style={{color:'#c0392b'}} onClick={()=>del(t.id)}>🗑</button>
+              </div></td>
+            </tr>)}
+          </tbody>
+        </table></div>
+    }
+    {showForm && <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowForm(false)}>
+      <div className="modal">
+        <div className="modal-header">
+          <div className="modal-title">{editId?'Edit':'Record'} Juz Test</div>
+          <button className="modal-close" onClick={()=>setShowForm(false)}>×</button>
+        </div>
+        <div className="form-row">
+          <div className="form-group"><label className="form-label">Date</label><input className="form-input" type="date" value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))}/></div>
+          <div className="form-group"><label className="form-label">Juz Number</label>
+            <select className="form-select" value={form.juz} onChange={e=>setForm(p=>({...p,juz:+e.target.value}))}>
+              {Array.from({length:30},(_,i)=><option key={i+1} value={i+1}>Juz {i+1}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="form-group"><label className="form-label">Result</label>
+          <select className="form-select" value={form.result} onChange={e=>setForm(p=>({...p,result:e.target.value}))}>
+            <option value="">— Select —</option>
+            <option value="pass">Pass</option>
+            <option value="fail">Fail</option>
+            <option value="needs-repeat">Needs Repeat</option>
+          </select>
+        </div>
+        <div className="form-group"><label className="form-label">Notes</label><textarea className="form-textarea" value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))}/></div>
+        <div className="modal-footer">
+          <button className="btn btn-ghost" onClick={()=>setShowForm(false)}>Cancel</button>
+          <button className="btn btn-primary" onClick={save}>{editId?'Update':'Save'}</button>
+        </div>
+      </div>
+    </div>}
+  </>;
+}
+
+// --- Goals Tab ---
+function GoalsTab({student,goals,setGoals,toast}) {
+  const stuGoals=goals.filter(g=>g.studentId===student.id);
+  const [showForm,setShowForm]=useState(false);
+  const [editId,setEditId]=useState(null);
+  const [form,setForm]=useState({title:'',description:'',targetDate:'',achieved:false,achievedDate:''});
+
+  const save=()=>{
+    const g={...form,id:editId||uid(),studentId:student.id};
+    setGoals(prev=>editId?prev.map(x=>x.id===editId?g:x):[...prev,g]);
+    setShowForm(false);setEditId(null);setForm({title:'',description:'',targetDate:'',achieved:false,achievedDate:''});
+    toast(editId?'Goal updated!':'Goal added!');
+  };
+  const del=(id)=>{ if(!window.confirm('Delete goal?'))return; setGoals(prev=>prev.filter(x=>x.id!==id)); toast('Deleted'); };
+  const edit=(g)=>{ setForm({...g});setEditId(g.id);setShowForm(true); };
+  const markAchieved=(id)=>{ setGoals(prev=>prev.map(g=>g.id===id?{...g,achieved:true,achievedDate:fmt.today()}:g)); toast('🎉 Goal achieved!'); };
+
+  return <>
+    <div style={{display:'flex',justifyContent:'flex-end',marginBottom:16}}>
+      <button className="btn btn-primary" onClick={()=>{setShowForm(true);setEditId(null);setForm({title:'',description:'',targetDate:'',achieved:false,achievedDate:''});}}>+ Add Goal</button>
+    </div>
+    {stuGoals.length===0
+      ? <div className="empty-state"><div className="empty-icon">🎯</div><div className="empty-msg">No goals set yet</div></div>
+      : <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          {stuGoals.map(g=><div key={g.id} className="card" style={{marginBottom:0,borderLeft:`4px solid ${g.achieved?'#2e7d32':'var(--teal-400)'}`}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+              <div>
+                <div style={{fontWeight:600,fontSize:15,marginBottom:4}}>{g.title}</div>
+                <div style={{fontSize:12,color:'var(--text-muted)',marginBottom:6}}>{g.description}</div>
+                <div style={{display:'flex',gap:8}}>
+                  {g.targetDate&&<span className="badge badge-teal">Target: {fmt.shortDate(g.targetDate)}</span>}
+                  {g.achieved&&<span className="badge badge-pass">✓ Achieved {fmt.shortDate(g.achievedDate)}</span>}
+                </div>
+              </div>
+              <div style={{display:'flex',gap:4,flexShrink:0}}>
+                {!g.achieved&&<button className="btn btn-sm" style={{background:'#2e7d32',color:'#fff'}} onClick={()=>markAchieved(g.id)}>✓ Mark Done</button>}
+                <button className="btn btn-ghost btn-xs" onClick={()=>edit(g)}>✏️</button>
+                <button className="btn btn-ghost btn-xs" style={{color:'#c0392b'}} onClick={()=>del(g.id)}>🗑</button>
+              </div>
+            </div>
+          </div>)}
+        </div>
+    }
+    {showForm && <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowForm(false)}>
+      <div className="modal">
+        <div className="modal-header">
+          <div className="modal-title">{editId?'Edit Goal':'Add Goal'}</div>
+          <button className="modal-close" onClick={()=>setShowForm(false)}>×</button>
+        </div>
+        <div className="form-group"><label className="form-label">Goal Title</label><input className="form-input" value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))} placeholder="e.g. Complete Juz 30 by Ramadan"/></div>
+        <div className="form-group"><label className="form-label">Description</label><textarea className="form-textarea" value={form.description} onChange={e=>setForm(p=>({...p,description:e.target.value}))} placeholder="Details…"/></div>
+        <div className="form-group"><label className="form-label">Target Date</label><input className="form-input" type="date" value={form.targetDate} onChange={e=>setForm(p=>({...p,targetDate:e.target.value}))}/></div>
+        <div className="modal-footer">
+          <button className="btn btn-ghost" onClick={()=>setShowForm(false)}>Cancel</button>
+          <button className="btn btn-primary" onClick={save}>{editId?'Update':'Add Goal'}</button>
+        </div>
+      </div>
+    </div>}
+  </>;
+}
+
+// --- Incidents Tab ---
+function IncidentsTab({student,incidents,setIncidents,toast}) {
+  const stuInc=incidents.filter(i=>i.studentId===student.id);
+  const [showForm,setShowForm]=useState(false);
+  const [editId,setEditId]=useState(null);
+  const [form,setForm]=useState({date:fmt.today(),type:'',description:'',followUp:'',resolved:false});
+
+  const save=()=>{
+    const inc={...form,id:editId||uid(),studentId:student.id};
+    setIncidents(prev=>editId?prev.map(x=>x.id===editId?inc:x):[...prev,inc]);
+    setShowForm(false);setEditId(null);setForm({date:fmt.today(),type:'',description:'',followUp:'',resolved:false});
+    toast(editId?'Incident updated!':'Incident recorded!');
+  };
+  const del=(id)=>{ if(!window.confirm('Delete incident?'))return; setIncidents(prev=>prev.filter(x=>x.id!==id)); toast('Deleted'); };
+  const edit=(i)=>{ setForm({...i});setEditId(i.id);setShowForm(true); };
+
+  return <>
+    <div style={{display:'flex',justifyContent:'flex-end',marginBottom:16}}>
+      <button className="btn btn-primary" onClick={()=>{setShowForm(true);setEditId(null);setForm({date:fmt.today(),type:'',description:'',followUp:'',resolved:false});}}>+ Record Incident</button>
+    </div>
+    {stuInc.length===0
+      ? <div className="empty-state"><div className="empty-icon">📋</div><div className="empty-msg">No incidents recorded</div></div>
+      : <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          {[...stuInc].sort((a,b)=>b.date.localeCompare(a.date)).map(inc=><div key={inc.id} className="card" style={{marginBottom:0,borderLeft:`4px solid ${inc.resolved?'#2e7d32':'#c0392b'}`}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+              <div>
+                <div style={{display:'flex',gap:8,marginBottom:6,alignItems:'center'}}>
+                  <span className="badge badge-absent">{inc.type||'General'}</span>
+                  <span style={{fontSize:12,color:'var(--text-muted)'}}>{fmt.shortDate(inc.date)}</span>
+                  {inc.resolved&&<span className="badge badge-pass">Resolved</span>}
+                </div>
+                <div style={{fontSize:13,marginBottom:4}}>{inc.description}</div>
+                {inc.followUp&&<div style={{fontSize:12,color:'var(--text-muted)'}}>Follow-up: {inc.followUp}</div>}
+              </div>
+              <div style={{display:'flex',gap:4,flexShrink:0}}>
+                {!inc.resolved&&<button className="btn btn-sm" style={{background:'#2e7d32',color:'#fff'}} onClick={()=>setIncidents(prev=>prev.map(x=>x.id===inc.id?{...x,resolved:true}:x))}>✓ Resolve</button>}
+                <button className="btn btn-ghost btn-xs" onClick={()=>edit(inc)}>✏️</button>
+                <button className="btn btn-ghost btn-xs" style={{color:'#c0392b'}} onClick={()=>del(inc.id)}>🗑</button>
+              </div>
+            </div>
+          </div>)}
+        </div>
+    }
+    {showForm && <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowForm(false)}>
+      <div className="modal">
+        <div className="modal-header">
+          <div className="modal-title">{editId?'Edit Incident':'Record Incident'}</div>
+          <button className="modal-close" onClick={()=>setShowForm(false)}>×</button>
+        </div>
+        <div className="form-row">
+          <div className="form-group"><label className="form-label">Date</label><input className="form-input" type="date" value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))}/></div>
+          <div className="form-group"><label className="form-label">Type</label>
+            <select className="form-select" value={form.type} onChange={e=>setForm(p=>({...p,type:e.target.value}))}>
+              <option value="">— Select —</option>
+              {INCIDENT_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="form-group"><label className="form-label">Description</label><textarea className="form-textarea" value={form.description} onChange={e=>setForm(p=>({...p,description:e.target.value}))} placeholder="Describe the incident…"/></div>
+        <div className="form-group"><label className="form-label">Follow-up Action</label><textarea className="form-textarea" value={form.followUp} onChange={e=>setForm(p=>({...p,followUp:e.target.value}))} placeholder="What action was taken or planned…" style={{minHeight:60}}/></div>
+        <div className="modal-footer">
+          <button className="btn btn-ghost" onClick={()=>setShowForm(false)}>Cancel</button>
+          <button className="btn btn-primary" onClick={save}>{editId?'Update':'Save'}</button>
+        </div>
+      </div>
+    </div>}
+  </>;
+}
+
+// --- Emails Tab ---
+function EmailsTab({student,sessions,allAtt,incidents,juzTests,goals}) {
+  const [emailType,setEmailType]=useState('absence');
+  const [customNote,setCustomNote]=useState('');
+  const [emailBody,setEmailBody]=useState('');
+  const [copied,setCopied]=useState(false);
+
+  const generateEmail = () => {
+    const d=fmt.shortDate(fmt.today());
+    const absent=allAtt.filter(a=>a.status==='absent').length;
+    const tardy=allAtt.filter(a=>a.status==='tardy').length;
+    const juzDone=(student.juzMap||[]).filter(x=>x==='memorized').length;
+    const latestPass=juzTests.filter(t=>t.studentId===student.id&&t.result==='pass').slice(-1)[0];
+    const latestGoal=goals.filter(g=>g.studentId===student.id&&g.achieved).slice(-1)[0];
+    const latestInc=incidents.filter(i=>i.studentId===student.id).slice(-1)[0];
+
+    const header=`Assalamu Alaikum wa Rahmatullahi wa Barakatuh,\n\nDear ${student.parentName||'Parent/Guardian'},\n\nI hope this message finds you and your family in the best of health and iman. My name is Aalimah Sadaf Kamani, and I am writing regarding your child, ${student.name}, enrolled at the Islamic Center of Frisco Quran Academy Hifz Program.\n\n`;
+    const footer=`\n${customNote?customNote+'\n\n':''}JazakAllahu Khayran for your continued support of ${student.name}'s Hifz journey. Please feel free to contact me with any questions.\n\nWarm regards,\nAalimah Sadaf Kamani\nHifz Teacher — ICF Quran Academy\nIslamic Center of Frisco`;
+
+    let body='';
+    if(emailType==='absence') body=`I am writing to inform you that ${student.name} has been marked absent from our Hifz class. As of today, ${d}, ${student.name} has a total of ${absent} absence(s) and ${tardy} tardy occurrence(s) this term.\n\nRegular attendance is essential to the success of the Hifz program. Each missed day creates gaps in the memorization process that require additional effort to bridge. We kindly request that you ensure ${student.name} attends consistently. If there are any extenuating circumstances, please let us know so we may accommodate accordingly.`;
+    else if(emailType==='tardy') body=`I wanted to bring to your attention that ${student.name} has arrived late to Hifz class. Punctuality is extremely important in the Hifz program, as late arrivals disrupt the structured learning environment and result in missed sabaq time.\n\nThis term, ${student.name} has ${tardy} tardy occurrence(s). We ask that you please make arrangements to ensure timely arrival. Doors open 10 minutes before class begins.`;
+    else if(emailType==='progress') body=`I am pleased to share a progress update on ${student.name}. Alhamdulillah, ${student.name} has made commendable progress in their Hifz journey.\n\n📖 Juz Memorized: ${juzDone} out of 30\n📅 Total Sessions Completed: ${sessions.length}\n✅ Attendance Rate: ${allAtt.length?Math.round((allAtt.filter(a=>a.status==='present').length/allAtt.length)*100):0}%\n\nWe encourage continued practice at home (daily manzil revision) to solidify what has been memorized. Please ensure ${student.name} revises their assigned portion each evening.`;
+    else if(emailType==='incident') body=`I am reaching out regarding an incident that occurred involving ${student.name}${latestInc?` on ${fmt.shortDate(latestInc.date)}`:''}. ${latestInc?latestInc.description:'Please contact me to discuss the details.'}\n\n${latestInc?.followUp?`Action taken: ${latestInc.followUp}\n\n`:''}We value open communication between home and the academy. This notice is being shared to keep you informed so we may work together to support ${student.name} in developing the best character alongside their Quran.`;
+    else if(emailType==='juz-pass') body=`Alhamdulillah! It is with great joy that I inform you ${student.name} has successfully passed their Juz Test${latestPass?` for Juz ${latestPass.juz} on ${fmt.shortDate(latestPass.date)}`:''}! 🌟\n\nThis is a wonderful achievement and a testament to ${student.name}'s dedication, consistency, and hard work. Please take a moment to celebrate this milestone with your child — your encouragement means the world to them.\n\nMay Allah ﷻ bless ${student.name} with barakah in their memorization and grant them the complete Hifz with understanding and love. Ameen.`;
+    else if(emailType==='goal') body=`Alhamdulillah! I am delighted to share that ${student.name} has achieved a goal set in our Hifz program${latestGoal?`: "${latestGoal.title}"`:''}! 🎯🏆\n\nThis accomplishment reflects ${student.name}'s commitment and your family's support. Goals help our students develop discipline and a sense of ownership over their Hifz journey.\n\nWe look forward to setting the next milestone together. JazakAllahu Khayran for your ongoing partnership in this blessed endeavor.`;
+
+    setEmailBody(header+body+footer);
+  };
+
+  const copyEmail=()=>{
+    navigator.clipboard.writeText(emailBody).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);});
+  };
+
+  return <div>
+    <div className="card">
+      <div className="card-title" style={{marginBottom:16}}>Parent Email Generator</div>
+      <div className="form-group">
+        <label className="form-label">Email Type</label>
+        <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+          {[['absence','Absence Notice'],['tardy','Tardy Notice'],['progress','Progress Update'],
+            ['incident','Incident Report'],['juz-pass','Juz Test Pass 🎉'],['goal','Goal Achieved 🏆']].map(([v,l])=>(
+            <button key={v} className={`chip ${emailType===v?'active':''}`} onClick={()=>{setEmailType(v);setEmailBody('');}}>
+              {l}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="form-group">
+        <label className="form-label">Additional Note (optional)</label>
+        <textarea className="form-textarea" value={customNote} onChange={e=>setCustomNote(e.target.value)} placeholder="Add a personal note to include in the email…" style={{minHeight:60}}/>
+      </div>
+      <button className="btn btn-primary" onClick={generateEmail}>Generate Email</button>
+    </div>
+
+    {emailBody && <div className="card">
+      <div className="card-header">
+        <div className="card-title">Generated Email</div>
+        <button className="btn btn-outline btn-sm" onClick={copyEmail}>{copied?'✓ Copied!':'📋 Copy'}</button>
+      </div>
+      <div className="email-preview">{emailBody}</div>
+    </div>}
+  </div>;
+}
+
+// ============================================================
+// REPORTS PAGE
+// ============================================================
+function ReportsPage({students,sessions,attendance,incidents,juzTests,goals}) {
+  const [period,setPeriod]=useState('weekly');
+  const today=fmt.today();
+
+  const filterByPeriod=(items,dateKey)=>{
+    const now=new Date(today);
+    return items.filter(item=>{
+      const d=new Date(item[dateKey]+'T00:00:00');
+      const diff=(now-d)/86400000;
+      if(period==='daily') return diff<1;
+      if(period==='weekly') return diff<=7;
+      if(period==='monthly') return diff<=30;
+      return true;
+    });
+  };
+
+  const pSessions=filterByPeriod(sessions,'date');
+  const pIncidents=filterByPeriod(incidents,'date');
+  const pTests=filterByPeriod(juzTests,'date');
+
+  const attByStudent=students.map(s=>{
+    const entries=Object.entries(attendance).filter(([date])=>{
+      const d=new Date(date+'T00:00:00'),now=new Date(today),diff=(now-d)/86400000;
+      return period==='daily'?diff<1:period==='weekly'?diff<=7:diff<=30;
+    }).map(([,day])=>day[s.id]).filter(Boolean);
+    const present=entries.filter(x=>x==='present').length;
+    const total=entries.length;
+    return {student:s,present,total,tardy:entries.filter(x=>x==='tardy').length,absent:entries.filter(x=>x==='absent').length};
+  }).sort((a,b)=>b.total-a.total);
+
+  return <>
+    <div className="page-header">
+      <div><div className="page-title">Reports</div><div className="page-subtitle">Academy-wide statistics</div></div>
+      <div style={{display:'flex',gap:8}}>
+        {['daily','weekly','monthly'].map(p=><button key={p} className={`chip ${period===p?'active':''}`} onClick={()=>setPeriod(p)}>{p.charAt(0).toUpperCase()+p.slice(1)}</button>)}
+      </div>
+    </div>
+    <div className="page-body">
+      <div className="stats-row">
+        <div className="stat-card"><div className="stat-value">{pSessions.length}</div><div className="stat-label">Sessions</div><div className="stat-sub">this {period.replace('ly','')}</div></div>
+        <div className="stat-card"><div className="stat-value">{pTests.filter(t=>t.result==='pass').length}</div><div className="stat-label">Juz Tests Passed</div></div>
+        <div className="stat-card"><div className="stat-value">{pIncidents.length}</div><div className="stat-label">Incidents</div></div>
+        <div className="stat-card"><div className="stat-value">{students.reduce((a,s)=>(a+(s.juzMap||[]).filter(x=>x==='memorized').length),0)}</div><div className="stat-label">Total Juz Memorized</div><div className="stat-sub">across all students</div></div>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+        <div className="card">
+          <div className="card-title" style={{marginBottom:16}}>Attendance Summary — {period}</div>
+          {attByStudent.filter(a=>a.total>0).length===0
+            ? <div className="text-muted text-small">No attendance data for this period</div>
+            : <div className="table-wrap"><table>
+                <thead><tr><th>Student</th><th>Present</th><th>Tardy</th><th>Absent</th><th>Rate</th></tr></thead>
+                <tbody>
+                  {attByStudent.filter(a=>a.total>0).map(({student:s,present,tardy,absent,total})=>(
+                    <tr key={s.id}>
+                      <td style={{fontWeight:500}}>{s.name}</td>
+                      <td><span className="badge badge-present">{present}</span></td>
+                      <td><span className="badge badge-tardy">{tardy}</span></td>
+                      <td><span className="badge badge-absent">{absent}</span></td>
+                      <td>{total?Math.round((present/total)*100):0}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table></div>
+          }
+        </div>
+
+        <div className="card">
+          <div className="card-title" style={{marginBottom:16}}>Juz Progress — All Students</div>
+          <div className="table-wrap"><table>
+            <thead><tr><th>Student</th><th>Memorized</th><th>In Progress</th><th>Progress</th></tr></thead>
+            <tbody>
+              {[...students].sort((a,b)=>((b.juzMap||[]).filter(x=>x==='memorized').length)-((a.juzMap||[]).filter(x=>x==='memorized').length)).map(s=>{
+                const done=(s.juzMap||[]).filter(x=>x==='memorized').length;
+                const ip=(s.juzMap||[]).filter(x=>x==='in-progress').length;
+                return <tr key={s.id}>
+                  <td style={{fontWeight:500}}>{s.name}</td>
+                  <td>{done}/30</td>
+                  <td>{ip}</td>
+                  <td><div className="progress-bar" style={{width:80}}><div className="progress-fill" style={{width:`${(done/30)*100}%`}}/></div></td>
+                </tr>;
+              })}
+            </tbody>
+          </table></div>
+        </div>
+
+        <div className="card">
+          <div className="card-title" style={{marginBottom:16}}>Juz Tests — {period}</div>
+          {pTests.length===0
+            ? <div className="text-muted text-small">No tests in this period</div>
+            : <div className="table-wrap"><table>
+                <thead><tr><th>Date</th><th>Student</th><th>Juz</th><th>Result</th></tr></thead>
+                <tbody>
+                  {pTests.map(t=>{
+                    const s=students.find(x=>x.id===t.studentId);
+                    return <tr key={t.id}>
+                      <td>{fmt.shortDate(t.date)}</td>
+                      <td>{s?.name||'?'}</td>
+                      <td>Juz {t.juz}</td>
+                      <td><span className={`badge badge-${t.result}`}>{t.result}</span></td>
+                    </tr>;
+                  })}
+                </tbody>
+              </table></div>
+          }
+        </div>
+
+        <div className="card">
+          <div className="card-title" style={{marginBottom:16}}>Incidents — {period}</div>
+          {pIncidents.length===0
+            ? <div className="text-muted text-small">No incidents in this period</div>
+            : pIncidents.map(inc=>{
+                const s=students.find(x=>x.id===inc.studentId);
+                return <div key={inc.id} style={{padding:'8px 0',borderBottom:'1px solid var(--border)'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',marginBottom:3}}>
+                    <span style={{fontWeight:500}}>{s?.name}</span>
+                    <span className="badge badge-absent">{inc.type}</span>
+                  </div>
+                  <div style={{fontSize:12,color:'var(--text-muted)'}}>{fmt.shortDate(inc.date)} · {inc.description?.slice(0,80)}</div>
+                </div>;
+              })
+          }
+        </div>
+      </div>
+    </div>
+  </>;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
