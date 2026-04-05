@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICF Quran Academy — Hifz Management</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>* { box-sizing: border-box; margin: 0; padding: 0; } body { background: #f7f5f0; }</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useCallback, useEffect, useRef } = React;
+PASTE THIS NEXT:
+
+const ACADEMY_NAME = "Islamic Center of Frisco Quran Academy";
+const ACADEMY_SUBTITLE = "Full-Time Hifz Program";
+const TEACHER_NAME = "Aalimah Sadaf Kamani";
+const STORE_KEY = "hifz_icf_v3";
+const MISTAKE_TYPES = ["Tajweed","Makhraj","Memorization gap","Rushed","Wrong word","Skipped ayah","Wrong connection","Hesitation","Madd error","Noon/Meem rules"];
+const SURAHS = [
+  {n:1,name:"Al-Fatihah",arabic:"الفاتحة",ayahs:7},{n:2,name:"Al-Baqarah",arabic:"البقرة",ayahs:286},
+  {n:3,name:"Aal-Imran",arabic:"آل عمران",ayahs:200},{n:4,name:"An-Nisa",arabic:"النساء",ayahs:176},
+  {n:5,name:"Al-Ma'idah",arabic:"المائدة",ayahs:120},{n:6,name:"Al-An'am",arabic:"الأنعام",ayahs:165},
+  {n:7,name:"Al-A'raf",arabic:"الأعراف",ayahs:206},{n:8,name:"Al-Anfal",arabic:"الأنفال",ayahs:75},
+  {n:9,name:"At-Tawbah",arabic:"التوبة",ayahs:129},{n:10,name:"Yunus",arabic:"يونس",ayahs:109},
+  {n:11,name:"Hud",arabic:"هود",ayahs:123},{n:12,name:"Yusuf",arabic:"يوسف",ayahs:111},
+  {n:13,name:"Ar-Ra'd",arabic:"الرعد",ayahs:43},{n:14,name:"Ibrahim",arabic:"إبراهيم",ayahs:52},
+  {n:15,name:"Al-Hijr",arabic:"الحجر",ayahs:99},{n:16,name:"An-Nahl",arabic:"النحل",ayahs:128},
+  {n:17,name:"Al-Isra",arabic:"الإسراء",ayahs:111},{n:18,name:"Al-Kahf",arabic:"الكهف",ayahs:110},
+  {n:19,name:"Maryam",arabic:"مريم",ayahs:98},{n:20,name:"Ta-Ha",arabic:"طه",ayahs:135},
+  {n:21,name:"Al-Anbiya",arabic:"الأنبياء",ayahs:112},{n:22,name:"Al-Hajj",arabic:"الحج",ayahs:78},
+  {n:23,name:"Al-Mu'minun",arabic:"المؤمنون",ayahs:118},{n:24,name:"An-Nur",arabic:"النور",ayahs:64},
+  {n:25,name:"Al-Furqan",arabic:"الفرقان",ayahs:77},{n:26,name:"Ash-Shu'ara",arabic:"الشعراء",ayahs:227},
+  {n:27,name:"An-Naml",arabic:"النمل",ayahs:93},{n:28,name:"Al-Qasas",arabic:"القصص",ayahs:88},
+  {n:29,name:"Al-Ankabut",arabic:"العنكبوت",ayahs:69},{n:30,name:"Ar-Rum",arabic:"الروم",ayahs:60},
+  {n:31,name:"Luqman",arabic:"لقمان",ayahs:34},{n:32,name:"As-Sajdah",arabic:"السجدة",ayahs:30},
+  {n:33,name:"Al-Ahzab",arabic:"الأحزاب",ayahs:73},{n:34,name:"Saba",arabic:"سبأ",ayahs:54},
+  {n:35,name:"Fatir",arabic:"فاطر",ayahs:45},{n:36,name:"Ya-Sin",arabic:"يس",ayahs:83},
+  {n:37,name:"As-Saffat",arabic:"الصافات",ayahs:182},{n:38,name:"Sad",arabic:"ص",ayahs:88},
+  {n:39,name:"Az-Zumar",arabic:"الزمر",ayahs:75},{n:40,name:"Ghafir",arabic:"غافر",ayahs:85},
+  {n:41,name:"Fussilat",arabic:"فصلت",ayahs:54},{n:42,name:"Ash-Shura",arabic:"الشورى",ayahs:53},
+  {n:43,name:"Az-Zukhruf",arabic:"الزخرف",ayahs:89},{n:44,name:"Ad-Dukhan",arabic:"الدخان",ayahs:59},
+  {n:45,name:"Al-Jathiyah",arabic:"الجاثية",ayahs:37},{n:46,name:"Al-Ahqaf",arabic:"الأحقاف",ayahs:35},
+  {n:47,name:"Muhammad",arabic:"محمد",ayahs:38},{n:48,name:"Al-Fath",arabic:"الفتح",ayahs:29},
+  {n:49,name:"Al-Hujurat",arabic:"الحجرات",ayahs:18},{n:50,name:"Qaf",arabic:"ق",ayahs:45},
+  {n:51,name:"Adh-Dhariyat",arabic:"الذاريات",ayahs:60},{n:52,name:"At-Tur",arabic:"الطور",ayahs:49},
+  {n:53,name:"An-Najm",arabic:"النجم",ayahs:62},{n:54,name:"Al-Qamar",arabic:"القمر",ayahs:55},
+  {n:55,name:"Ar-Rahman",arabic:"الرحمن",ayahs:78},{n:56,name:"Al-Waqi'ah",arabic:"الواقعة",ayahs:96},
+  {n:57,name:"Al-Hadid",arabic:"الحديد",ayahs:29},{n:58,name:"Al-Mujadila",arabic:"المجادلة",ayahs:22},
+  {n:59,name:"Al-Hashr",arabic:"الحشر",ayahs:24},{n:60,name:"Al-Mumtahanah",arabic:"الممتحنة",ayahs:13},
+  {n:61,name:"As-Saf",arabic:"الصف",ayahs:14},{n:62,name:"Al-Jumu'ah",arabic:"الجمعة",ayahs:11},
+  {n:63,name:"Al-Munafiqun",arabic:"المنافقون",ayahs:11},{n:64,name:"At-Taghabun",arabic:"التغابن",ayahs:18},
+  {n:65,name:"At-Talaq",arabic:"الطلاق",ayahs:12},{n:66,name:"At-Tahrim",arabic:"التحريم",ayahs:12},
+  {n:67,name:"Al-Mulk",arabic:"الملك",ayahs:30},{n:68,name:"Al-Qalam",arabic:"القلم",ayahs:52},
+  {n:69,name:"Al-Haqqah",arabic:"الحاقة",ayahs:52},{n:70,name:"Al-Ma'arij",arabic:"المعارج",ayahs:44},
+  {n:71,name:"Nuh",arabic:"نوح",ayahs:28},{n:72,name:"Al-Jinn",arabic:"الجن",ayahs:28},
+  {n:73,name:"Al-Muzzammil",arabic:"المزمل",ayahs:20},{n:74,name:"Al-Muddaththir",arabic:"المدثر",ayahs:56},
+  {n:75,name:"Al-Qiyamah",arabic:"القيامة",ayahs:40},{n:76,name:"Al-Insan",arabic:"الإنسان",ayahs:31},
+  {n:77,name:"Al-Mursalat",arabic:"المرسلات",ayahs:50},{n:78,name:"An-Naba",arabic:"النبأ",ayahs:40},
+  {n:79,name:"An-Nazi'at",arabic:"النازعات",ayahs:46},{n:80,name:"Abasa",arabic:"عبس",ayahs:42},
+  {n:81,name:"At-Takwir",arabic:"التكوير",ayahs:29},{n:82,name:"Al-Infitar",arabic:"الانفطار",ayahs:19},
+  {n:83,name:"Al-Mutaffifin",arabic:"المطففين",ayahs:36},{n:84,name:"Al-Inshiqaq",arabic:"الانشقاق",ayahs:25},
+  {n:85,name:"Al-Buruj",arabic:"البروج",ayahs:22},{n:86,name:"At-Tariq",arabic:"الطارق",ayahs:17},
+  {n:87,name:"Al-A'la",arabic:"الأعلى",ayahs:19},{n:88,name:"Al-Ghashiyah",arabic:"الغاشية",ayahs:26},
+  {n:89,name:"Al-Fajr",arabic:"الفجر",ayahs:30},{n:90,name:"Al-Balad",arabic:"البلد",ayahs:20},
+  {n:91,name:"Ash-Shams",arabic:"الشمس",ayahs:15},{n:92,name:"Al-Layl",arabic:"الليل",ayahs:21},
+  {n:93,name:"Ad-Duha",arabic:"الضحى",ayahs:11},{n:94,name:"Ash-Sharh",arabic:"الشرح",ayahs:8},
+  {n:95,name:"At-Tin",arabic:"التين",ayahs:8},{n:96,name:"Al-Alaq",arabic:"العلق",ayahs:19},
+  {n:97,name:"Al-Qadr",arabic:"القدر",ayahs:5},{n:98,name:"Al-Bayyinah",arabic:"البينة",ayahs:8},
+  {n:99,name:"Az-Zalzalah",arabic:"الزلزلة",ayahs:8},{n:100,name:"Al-Adiyat",arabic:"العاديات",ayahs:11},
+  {n:101,name:"Al-Qari'ah",arabic:"القارعة",ayahs:11},{n:102,name:"At-Takathur",arabic:"التكاثر",ayahs:8},
+  {n:103,name:"Al-Asr",arabic:"العصر",ayahs:3},{n:104,name:"Al-Humazah",arabic:"الهمزة",ayahs:9},
+  {n:105,name:"Al-Fil",arabic:"الفيل",ayahs:5},{n:106,name:"Quraysh",arabic:"قريش",ayahs:4},
+  {n:107,name:"Al-Ma'un",arabic:"الماعون",ayahs:7},{n:108,name:"Al-Kawthar",arabic:"الكوثر",ayahs:3},
+  {n:109,name:"Al-Kafirun",arabic:"الكافرون",ayahs:6},{n:110,name:"An-Nasr",arabic:"النصر",ayahs:3},
+  {n:111,name:"Al-Masad",arabic:"المسد",ayahs:5},{n:112,name:"Al-Ikhlas",arabic:"الإخلاص",ayahs:4},
+  {n:113,name:"Al-Falaq",arabic:"الفلق",ayahs:5},{n:114,name:"An-Nas",arabic:"الناس",ayahs:6},
+];
+const JUZ_NAMES = ["","Al-Fatihah","Al-Baqarah","Al-Baqarah","Aal-Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","At-Tawbah","Yunus","Hud","Yusuf","Ar-Ra'd","Al-Hijr","Al-Isra","Al-Kahf","Al-Anbiya","Al-Mu'minun","Al-Furqan","An-Naml","Al-Ankabut","Al-Ahzab","Ya-Sin","Az-Zumar","Fussilat","Al-Ahqaf","Adh-Dhariyat","Al-Mujadila","Al-Mulk","An-Naba"];
+const QUARTERS = ["1st Quarter (Rub' 1)","2nd Quarter (Rub' 2)","3rd Quarter (Rub' 3)","4th Quarter (Rub' 4)"];
+
+
+const uid = () => Math.random().toString(36).slice(2,10);
+const todayStr = () => new Date().toISOString().slice(0,10);
+const fmtDate = d => { try { return new Date(d+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); } catch { return d||""; } };
+const fmtDateFull = d => { try { return new Date(d+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"}); } catch { return d||""; } };
+const monthKey = d => d.slice(0,7);
+const weekKey = d => { const dt=new Date(d); const jan1=new Date(dt.getFullYear(),0,1); return `${dt.getFullYear()}-W${String(Math.ceil(((dt-jan1)/86400000+jan1.getDay()+1)/7)).padStart(2,"0")}`; };
+const prevDay = d => { const dt=new Date(d+"T12:00:00"); dt.setDate(dt.getDate()-1); return dt.toISOString().slice(0,10); };
+const nextDay = d => { const dt=new Date(d+"T12:00:00"); dt.setDate(dt.getDate()+1); return dt.toISOString().slice(0,10); };
+const juzQuarterLabel = (juz,q) => juz && q!=null ? `Juz ${juz}, ${QUARTERS[q]}` : "—";
+const defaultState = () => ({ students:[], logs:{}, attendance:{}, incidents:{}, grievances:{}, awards:{ weekly:{}, monthly:{} }, parentEmails:{}, juzTests:{}, goals:{} });
+const loadState = () => { try { const s=localStorage.getItem(STORE_KEY); return s?{...defaultState(),...JSON.parse(s)}:defaultState(); } catch { return defaultState(); } };
+const saveState = s => { try { localStorage.setItem(STORE_KEY,JSON.stringify(s)); } catch {} };
+const C = {
+  bg:"#f7f5f0",paper:"#ffffff",border:"#e8e2d8",borderMid:"#d4ccc0",
+  teal:"#1a6b6b",tealDark:"#145555",tealLight:"#eef6f6",tealMid:"#2d8a8a",
+  gold:"#b07c2a",goldLight:"#fdf7ec",goldBorder:"#e4d09a",
+  green:"#2a6444",greenLight:"#edf5f0",
+  red:"#892020",redLight:"#fdf1f1",
+  orange:"#9a4e10",orangeLight:"#fef4ec",
+  purple:"#5a2d82",purpleLight:"#f3eefa",
+  text:"#1a1a1a",textSub:"#6b6060",textDim:"#aaa",
+  sidebar:"#1c2c2c",sidebarBorder:"#2a3e3e",sidebarText:"#92b8b8",sidebarHi:"#2d8a8a",
+};
+PASTE THIS NEXT:
+
+const G = `
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px;}
+.hr{font-family:'DM Sans',sans-serif;background:#f7f5f0;color:#1a1a1a;font-size:14px;display:flex;min-height:100vh;}
+.sb{width:216px;background:#1c2c2c;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;overflow-y:auto;}
+.sb-logo{padding:18px 16px 12px;border-bottom:1px solid #2a3e3e;}
+.sb-name{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:700;color:#d4a040;line-height:1.3;}
+.sb-sub{font-size:9px;color:#4a6a6a;margin-top:3px;letter-spacing:.1em;text-transform:uppercase;}
+.sb-teacher{padding:8px 16px;font-size:11px;color:#4a7070;font-style:italic;border-bottom:1px solid #2a3e3e;}
+.sb-section{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#3a5050;padding:12px 16px 4px;}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;font-size:13px;color:#92b8b8;transition:all .15s;border-left:3px solid transparent;}
+.ni:hover{background:rgba(255,255,255,.04);color:#b8d8d8;}
+.ni.on{background:rgba(45,138,138,.14);color:#7cd4d4;border-left-color:#2d8a8a;}
+.ni-ic{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.main{margin-left:216px;flex:1;display:flex;flex-direction:column;}
+.topbar{background:#fff;border-bottom:1px solid #e8e2d8;padding:13px 26px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.tb-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;}
+.tb-date{font-size:11px;color:#aaa;}
+.content{flex:1;padding:22px 26px;}
+.card{background:#fff;border:1px solid #e8e2d8;border-radius:6px;padding:18px;}
+.ctitle{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;margin-bottom:13px;}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px;}
+.sc{background:#fff;border:1px solid #e8e2d8;border-radius:6px;padding:14px 16px;}
+.sv{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;line-height:1;}
+.sl{font-size:11px;color:#6b6060;margin-top:3px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:4px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all .15s;white-space:nowrap;}
+.btn-p{background:#1a6b6b;color:#fff;}.btn-p:hover{background:#145555;}
+.btn-s{background:transparent;border:1px solid #e8e2d8;color:#6b6060;}.btn-s:hover{border-color:#1a6b6b;color:#1a6b6b;}
+.btn-g{background:#b07c2a;color:#fff;}.btn-g:hover{background:#8a6020;}
+.btn-d{background:#892020;color:#fff;}.btn-d:hover{background:#6a1818;}
+.btn-pu{background:#5a2d82;color:#fff;}.btn-pu:hover{background:#44206a;}
+.btn-sm{padding:5px 11px;font-size:12px;}
+.fl{display:flex;}.fla{align-items:center;}.flb{justify-content:space-between;}.g8{gap:8px;}.g12{gap:12px;}.g16{gap:16px;}
+.mb8{margin-bottom:8px;}.mb12{margin-bottom:12px;}.mb16{margin-bottom:16px;}.mb20{margin-bottom:20px;}
+.mt8{margin-top:8px;}.mt12{margin-top:12px;}.mt16{margin-top:16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.lbl{display:block;font-size:11px;font-weight:600;color:#6b6060;margin-bottom:5px;}
+.inp{width:100%;padding:8px 11px;border:1px solid #e8e2d8;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:14px;background:#f7f5f0;color:#1a1a1a;outline:none;transition:border-color .15s;}
+.inp:focus{border-color:#1a6b6b;background:#fff;}
+.sel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236b6b6b' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:26px;}
+textarea.inp{resize:vertical;min-height:72px;}
+.dt{width:100%;border-collapse:collapse;}
+.dt th{text-align:left;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#aaa;padding:7px 10px;border-bottom:2px solid #e8e2d8;white-space:nowrap;}
+.dt td{padding:9px 10px;border-bottom:1px solid #e8e2d8;font-size:13px;vertical-align:middle;}
+.dt tr:last-child td{border-bottom:none;}.dt tbody tr:hover td{background:#f7f5f0;}
+.bdg{display:inline-flex;align-items:center;padding:2px 7px;border-radius:12px;font-size:11px;font-weight:500;}
+.bdg-g{background:#edf5f0;color:#2a6444;}.bdg-r{background:#fdf1f1;color:#892020;}
+.bdg-t{background:#eef6f6;color:#1a6b6b;}.bdg-gld{background:#fdf7ec;color:#b07c2a;border:1px solid #e4d09a;}
+.bdg-o{background:#fef4ec;color:#9a4e10;}.bdg-gr{background:#f0ede8;color:#6b6060;}
+.bdg-pu{background:#f3eefa;color:#5a2d82;}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.44);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.mo-box{background:#fff;border-radius:8px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.22);}
+.mo-box.wide{max-width:720px;}
+.mo-hd{padding:18px 22px 14px;border-bottom:1px solid #e8e2d8;display:flex;align-items:center;justify-content:space-between;}
+.mo-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;}
+.mo-x{background:none;border:none;font-size:20px;color:#aaa;cursor:pointer;line-height:1;padding:2px;}
+.mo-x:hover{color:#1a1a1a;}
+.mo-body{padding:18px 22px;}
+.mo-ft{padding:14px 22px;border-top:1px solid #e8e2d8;display:flex;gap:9px;justify-content:flex-end;}
+.tabs{display:flex;border-bottom:2px solid #e8e2d8;margin-bottom:18px;flex-wrap:wrap;}
+.tab{padding:9px 14px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:#6b6060;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.tab.on{color:#1a6b6b;border-bottom-color:#1a6b6b;font-weight:600;}
+.tab:hover:not(.on){color:#1a1a1a;}
+.pb{height:5px;background:#e8e2d8;border-radius:3px;overflow:hidden;}
+.pbf{height:100%;border-radius:3px;transition:width .3s;}
+.jg{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;}
+.jc{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:4px;border:1px solid #e8e2d8;cursor:pointer;transition:all .12s;font-size:11px;font-weight:700;}
+.jc:hover{border-color:#1a6b6b;}.jc.mem{background:#1a6b6b;border-color:#1a6b6b;color:#fff;}
+.jc.par{background:#fdf7ec;border-color:#b07c2a;color:#b07c2a;}.jc.non{background:#f7f5f0;color:#aaa;}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-dh{text-align:center;font-size:9px;font-weight:600;color:#aaa;padding:3px 0;}
+.cal-d{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;transition:all .1s;border:1px solid transparent;}
+.cal-d.present{background:#edf5f0;color:#2a6444;}.cal-d.absent{background:#fdf1f1;color:#892020;}
+.cal-d.tardy{background:#fef4ec;color:#9a4e10;}.cal-d.norec{background:#f7f5f0;color:#aaa;}
+.cal-d.today-d{border-color:#1a6b6b;}.cal-d.emp{opacity:0;pointer-events:none;}
+.aw-card{background:linear-gradient(135deg,#fdf8ee,#fffbf0);border:1px solid #e4d09a;border-radius:8px;padding:18px;text-align:center;position:relative;overflow:hidden;}
+.aw-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#b07c2a,#e8c060,#b07c2a);}
+.ep{background:#f8f7f4;border:1px solid #e8e2d8;border-radius:4px;padding:14px;font-size:13px;line-height:1.85;white-space:pre-wrap;font-family:'Cormorant Garamond',serif;}
+.dv{height:1px;background:#e8e2d8;margin:14px 0;}
+.fw6{font-weight:600;}.tc{text-align:center;}.ts{font-family:'Cormorant Garamond',serif;}
+.tw{color:#1a6b6b;}.tg{color:#b07c2a;}.tsb{color:#6b6060;}.tdm{color:#aaa;}
+.tsm{font-size:12px;}.txs{font-size:11px;}.wf{width:100%;}
+.fi{animation:fi .2s ease;}@keyframes fi{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+.date-nav{display:flex;align-items:center;gap:12px;}
+.date-nav-btn{background:#f7f5f0;border:1px solid #e8e2d8;border-radius:4px;padding:5px 10px;cursor:pointer;font-size:14px;color:#6b6060;transition:all .12s;}
+.date-nav-btn:hover{border-color:#1a6b6b;color:#1a6b6b;}
+.date-nav-today{font-size:13px;font-weight:600;color:#1a1a1a;min-width:160px;text-align:center;}
+.att-student-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e8e2d8;}
+.att-student-row:last-child{border-bottom:none;}
+.att-btns{display:flex;gap:6px;}
+.att-btn{padding:5px 12px;border-radius:4px;border:1px solid #e8e2d8;background:transparent;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;}
+.att-btn.present.on{background:#2a6444;border-color:#2a6444;color:#fff;}
+.att-btn.absent.on{background:#892020;border-color:#892020;color:#fff;}
+.att-btn.tardy.on{background:#9a4e10;border-color:#9a4e10;color:#fff;}
+.att-btn:not(.on){color:#aaa;}
+.att-btn:not(.on):hover{border-color:#2d8a8a;color:#2d8a8a;}
+`;
+function genEmail({student,type,data}) {
+  const d=fmtDate(todayStr());
+  const g=`Assalamu Alaikum wa Rahmatullahi wa Barakatuh,\n\nDear ${student.parentName||"Parent/Guardian"},\n\n`;
+  const c=`\n\nJazakAllahu Khairan for your continued support in ${student.name}'s Hifz journey.\n\nWarm regards,\n${TEACHER_NAME}\n${ACADEMY_NAME} — ${ACADEMY_SUBTITLE}`;
+  if(type==="absence") return g+`This is to inform you that ${student.name} was absent from class today, ${d}.\n\n${data?.reason?`Reason noted: ${data.reason}\n\n`:""}Regular attendance is critical for Hifz continuity. Please ensure ${student.name} continues home revision.`+c;
+  if(type==="tardy") return g+`${student.name} arrived late to class today, ${d}${data?.time?` at ${data.time}`:""}.`+`\n\nPunctuality is important as the start of class is dedicated to Sabaq. Please ensure timely arrival.`+c;
+  if(type==="progress") return g+`Here is a progress update for ${student.name} as of ${d}.\n\n📖 Juz Memorized: ${(student.juzMemorized||[]).length} / 30\n📝 Current Sabaq: ${data?.currentSabaq||"—"}\n🔄 Manzil Status: ${data?.manzilStatus||"On track"}\n\n${data?.notes?`Notes: ${data.notes}\n\n`:""}Please support ${student.name} with daily home revision.`+c;
+  if(type==="incident") return g+`I am writing regarding an incident involving ${student.name} on ${d}.\n\n${data?.description||""}\n\n${data?.action?`Action taken: ${data.action}\n\n`:""}Please contact me at your earliest convenience.`+c;
+  if(type==="juztest") return g+`الحمد لله — ${student.name} has successfully passed the Juz Test for Juz ${data?.juz||""} on ${d}!\n\n${data?.notes?`Notes: ${data.notes}\n\n`:""}This is a significant achievement. May Allah accept this effort and make it a means of barakah for your entire family.`+c;
+  if(type==="goal") return g+`الحمد لله — ${student.name} has achieved a personal Hifz goal!\n\n🎯 Goal: ${data?.goalTitle||""}\n📅 Achieved on: ${d}\n\nWe are so proud of ${student.name}'s dedication. May Allah continue to bless this journey.`+c;
+  return g+c;
+}
+function Modal({title,onClose,children,footer,wide}) {
+  return (
+    <div className="mo" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className={`mo-box fi ${wide?"wide":""}`}>
+        <div className="mo-hd"><div className="mo-title">{title}</div><button className="mo-x" onClick={onClose}>×</button></div>
+        <div className="mo-body">{children}</div>
+        {footer&&<div className="mo-ft">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+function Field({label,children,style}) { return <div className="mb12" style={style}><label className="lbl">{label}</label>{children}</div>; }
+function JuzQuarterPicker({label,juz,quarter,onJuz,onQuarter}) {
+  return (
+    <div>
+      <label className="lbl">{label}</label>
+      <div className="fl g8">
+        <select className="inp sel" style={{flex:1}} value={juz||""} onChange={e=>onJuz(e.target.value?Number(e.target.value):"")}>
+          <option value="">Juz —</option>
+          {Array.from({length:30},(_,i)=>i+1).map(j=><option key={j} value={j}>Juz {j} — {JUZ_NAMES[j]}</option>)}
+        </select>
+        <select className="inp sel" style={{flex:1}} value={quarter!=null?quarter:""} onChange={e=>onQuarter(e.target.value!==""?Number(e.target.value):null)}>
+          <option value="">Quarter —</option>
+          {QUARTERS.map((q,i)=><option key={i} value={i}>{q}</option>)}
+        </select>
+      </div>
+    </div>
+  );
+}
+function SurahAyahPicker({label,surah,ayah,onSurah,onAyah}) {
+  const found=SURAHS.find(s=>s.n===surah);
+  const maxAyah=found?found.ayahs:286;
+  return (
+    <div>
+      <label className="lbl">{label}</label>
+      <div className="fl g8">
+        <select className="inp sel" style={{flex:2}} value={surah||""} onChange={e=>onSurah(e.target.value?Number(e.target.value):"")}>
+          <option value="">Surah —</option>
+          {SURAHS.map(s=><option key={s.n} value={s.n}>{s.n}. {s.name}</option>)}
+        </select>
+        <input className="inp" style={{width:80,flex:0}} type="number" min={1} max={maxAyah} placeholder="Ayah" value={ayah||""} onChange={e=>onAyah(e.target.value?Number(e.target.value):"")} />
+      </div>
+    </div>
+  );
+}
+function JuzGrid({selected=[],partial=[],onChange}) {
+  const toggle=j=>selected.includes(j)?onChange(selected.filter(x=>x!==j),partial):onChange([...selected,j],partial.filter(x=>x!==j));
+  const toggleP=(j,e)=>{e.preventDefault();partial.includes(j)?onChange(selected,partial.filter(x=>x!==j)):onChange(selected.filter(x=>x!==j),[...partial,j]);};
+  return (
+    <div>
+      <div className="fl g8 mb8" style={{fontSize:11,color:"#6b6060"}}>
+        <span>🟢 Memorized (click)</span>
+        <span>🟡 In Progress (right-click)</span>
+      </div>
+      <div className="jg">
+        {Array.from({length:30},(_,i)=>i+1).map(j=>(
+          <div key={j} className={`jc ${selected.includes(j)?"mem":partial.includes(j)?"par":"non"}`}
+            onClick={()=>toggle(j)} onContextMenu={e=>toggleP(j,e)} title={`Juz ${j}`}>
+            <span style={{fontSize:13}}>{j}</span><span style={{fontSize:8,opacity:.65}}>جز</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+function ClassAttendanceView({state,setState,date}) {
+  const {students,attendance}=state;
+  const setAtt=(sid,d,status)=>setState(p=>{
+    const a={...p.attendance};a[sid]={...a[sid]};
+    if(!status)delete a[sid][d];else a[sid][d]=status;
+    return {...p,attendance:a};
+  });
+  if(!students.length) return <div className="tdm tsm tc" style={{padding:"20px 0"}}>No students enrolled yet.</div>;
+  return (
+    <div>
+      {students.map(s=>{
+        const att=(attendance[s.id]||{})[date];
+        return (
+          <div key={s.id} className="att-student-row">
+            <div>
+              <div className="fw6">{s.name}</div>
+              <div className="txs tdm">{(s.juzMemorized||[]).length} Juz memorized</div>
+            </div>
+            <div className="att-btns">
+              {["present","tardy","absent"].map(st=>(
+                <button key={st} className={`att-btn ${st} ${att===st?"on":""}`}
+                  onClick={()=>setAtt(s.id,date,att===st?undefined:st)}>
+                  {st.charAt(0).toUpperCase()+st.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+function AttCalView({studentId,attendance,onMark}) {
+  const [vd,setVd]=useState(new Date());
+  const y=vd.getFullYear(),m=vd.getMonth();
+  const firstDay=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();
+  const att=attendance[studentId]||{};
+  const today=todayStr();
+  const days=[];
+  for(let i=0;i<firstDay;i++)days.push({empty:true});
+  for(let d=1;d<=dim;d++){const ds=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;days.push({d,ds,status:att[ds]});}
+  const mPfx=`${y}-${String(m+1).padStart(2,"0")}`;
+  const mAtt=Object.entries(att).filter(([k])=>k.startsWith(mPfx));
+  return (
+    <div>
+      <div className="fl fla flb mb12">
+        <button className="btn btn-s btn-sm" onClick={()=>setVd(new Date(y,m-1,1))}>‹</button>
+        <span className="fw6">{vd.toLocaleDateString("en-US",{month:"long",year:"numeric"})}</span>
+        <button className="btn btn-s btn-sm" onClick={()=>setVd(new Date(y,m+1,1))}>›</button>
+      </div>
+      <div className="fl g8 mb12">
+        <span className="bdg bdg-g">Present: {mAtt.filter(([,v])=>v==="present").length}</span>
+        <span className="bdg bdg-r">Absent: {mAtt.filter(([,v])=>v==="absent").length}</span>
+        <span className="bdg bdg-o">Tardy: {mAtt.filter(([,v])=>v==="tardy").length}</span>
+      </div>
+      <div className="cal-g">
+        {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} className="cal-dh">{d}</div>)}
+        {days.map((day,i)=>day.empty?<div key={i} className="cal-d emp"/>
+          :<div key={day.ds} className={`cal-d ${day.status||"norec"} ${day.ds===today?"today-d":""}`}
+              onClick={()=>{const cy=[undefined,"present","absent","tardy"];const ci=cy.indexOf(day.status);onMark(studentId,day.ds,cy[(ci+1)%cy.length]);}}>
+            {day.d}
+          </div>
+        )}
+      </div>
+      <div className="txs tdm mt8">Click to cycle: no record → present → absent → tardy</div>
+    </div>
+  );
+}
+function Dashboard({state,setState,setView,setSel}) {
+  const [dashDate,setDashDate]=useState(todayStr());
+  const {students,attendance,logs,awards,incidents}=state;
+  const wk=weekKey(dashDate),mn=monthKey(dashDate);
+  const isToday=dashDate===todayStr();
+  const present=students.filter(s=>(attendance[s.id]||{})[dashDate]==="present").length;
+  const absent=students.filter(s=>(attendance[s.id]||{})[dashDate]==="absent").length;
+  const tardy=students.filter(s=>(attendance[s.id]||{})[dashDate]==="tardy").length;
+  const sow=awards.weekly[wk]?students.find(s=>s.id===awards.weekly[wk]):null;
+  const som=awards.monthly[mn]?students.find(s=>s.id===awards.monthly[mn]):null;
+  const [awMd,setAwMd]=useState(null);
+  const [awSel,setAwSel]=useState("");
+  const [awSuggestion,setAwSuggestion]=useState(null);
+  const [awLoading,setAwLoading]=useState(false);
+  const saveAward=()=>{
+    if(!awSel)return;
+    setState(p=>{const n={...p,awards:{...p.awards}};
+      if(awMd==="weekly")n.awards.weekly={...p.awards.weekly,[wk]:awSel};
+      else n.awards.monthly={...p.awards.monthly,[mn]:awSel};
+      return n;
+    });
+    setAwMd(null);setAwSel("");setAwSuggestion(null);
+  };
+  const clearAward=(type)=>{
+    setState(p=>{const n={...p,awards:{...p.awards}};
+      if(type==="weekly"){const w={...p.awards.weekly};delete w[wk];n.awards.weekly=w;}
+      else{const m={...p.awards.monthly};delete m[mn];n.awards.monthly=m;}
+      return n;
+    });
+  };
+  const suggestAward=async()=>{
+    setAwLoading(true);setAwSuggestion(null);
+    const period=awMd==="weekly"?7:30;
+    const cutoff=new Date(dashDate+"T12:00:00");cutoff.setDate(cutoff.getDate()-period);
+    const cutStr=cutoff.toISOString().slice(0,10);
+    const summaries=students.map(s=>{
+      const sl=(logs[s.id]||[]).filter(l=>l.date>=cutStr&&l.date<=dashDate);
+      const att=Object.entries(attendance[s.id]||{}).filter(([k])=>k>=cutStr&&k<=dashDate);
+      const presents=att.filter(([,v])=>v==="present").length;
+      const mistakes=sl.flatMap(l=>l.mistakeTypes||[]).length;
+      const sabqiPass=sl.filter(l=>l.sabqiResult==="pass").length;
+      const manzilPass=sl.filter(l=>l.manzilResult==="pass").length;
+      return `${s.name}: ${sl.length} sessions, ${sabqiPass} sabqi passes, ${manzilPass} manzil passes, ${mistakes} mistakes, ${presents} days present`;
+    }).join("\n");
+    try {
+      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        model:"claude-sonnet-4-6",max_tokens:300,
+        system:"You are a Hifz class assistant. Suggest ONE student for an award with a 2-3 sentence reason. Format:\nSTUDENT: [name]\nREASON: [reason]",
+        messages:[{role:"user",content:`Suggest the ${awMd==="weekly"?"Student of the Week":"Student of the Month"} based on last ${period} days:\n\n${summaries}`}]
+      })});
+      const data=await res.json();
+      const text=data.content?.map(b=>b.text||"").join("")||"";
+      const nm=text.match(/STUDENT:\s*(.+)/i);
+      const rm=text.match(/REASON:\s*([\s\S]+)/i);
+      if(nm)setAwSuggestion({name:nm[1].trim(),reason:rm?rm[1].trim():""});
+    }catch{}
+    setAwLoading(false);
+  };
+  const dayLogs=students.flatMap(s=>(logs[s.id]||[]).filter(l=>l.date===dashDate).map(l=>({...l,sn:s.name,sid:s.id})));
+  const dayInc=students.flatMap(s=>(incidents[s.id]||[]).filter(i=>i.date===dashDate).map(i=>({...i,sn:s.name})));
+  return (
+    <div className="fi">
+      <div className="fl fla flb mb20">
+        <div className="date-nav">
+          <button className="date-nav-btn" onClick={()=>setDashDate(prevDay(dashDate))}>‹ Prev</button>
+          <div className="date-nav-today">{isToday?"Today — ":""}{fmtDate(dashDate)}</div>
+          <button className="date-nav-btn" onClick={()=>setDashDate(nextDay(dashDate))} disabled={dashDate>=todayStr()} style={{opacity:dashDate>=todayStr()?0.4:1}}>Next ›</button>
+          {!isToday&&<button className="btn btn-s btn-sm" onClick={()=>setDashDate(todayStr())}>Today</button>}
+        </div>
+        <div className="txs tdm">{fmtDateFull(dashDate)}</div>
+      </div>
+      <div className="sg">
+        <div className="sc"><div className="sv" style={{color:"#1a6b6b"}}>{students.length}</div><div className="sl">Total Students</div></div>
+        <div className="sc"><div className="sv" style={{color:"#2a6444"}}>{present}</div><div className="sl">Present</div></div>
+        <div className="sc"><div className="sv" style={{color:"#892020"}}>{absent}</div><div className="sl">Absent</div></div>
+        <div className="sc"><div className="sv" style={{color:"#9a4e10"}}>{tardy}</div><div className="sl">Tardy</div></div>
+      </div>
+      <div className="g2 mb20">
+        <div className="card">
+          <div className="ctitle">📋 Class Attendance</div>
+          <ClassAttendanceView state={state} setState={setState} date={dashDate}/>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <div className="card">
+            <div className="fl fla flb mb12">
+              <div className="ctitle mb0">🏆 Student of the Week</div>
+              <div className="fl g8">
+                {sow&&<button className="btn btn-s btn-sm" style={{color:"#892020",borderColor:"#892020"}} onClick={()=>clearAward("weekly")}>Clear</button>}
+                <button className="btn btn-s btn-sm" onClick={()=>{setAwMd("weekly");setAwSel(awards.weekly[wk]||"");setAwSuggestion(null);}}>Set</button>
+              </div>
+            </div>
+            {sow?<div className="aw-card"><div style={{fontSize:22,marginBottom:6}}>⭐</div><div className="ts" style={{fontSize:18,fontWeight:600}}>{sow.name}</div></div>
+              :<div className="tc tdm tsm" style={{padding:"12px 0"}}>Not yet selected</div>}
+          </div>
+          <div className="card">
+            <div className="fl fla flb mb12">
+              <div className="ctitle mb0">🌟 Student of the Month</div>
+              <div className="fl g8">
+                {som&&<button className="btn btn-s btn-sm" style={{color:"#892020",borderColor:"#892020"}} onClick={()=>clearAward("monthly")}>Clear</button>}
+                <button className="btn btn-s btn-sm" onClick={()=>{setAwMd("monthly");setAwSel(awards.monthly[mn]||"");setAwSuggestion(null);}}>Set</button>
+              </div>
+            </div>
+            {som?<div className="aw-card"><div style={{fontSize:22,marginBottom:6}}>🌙</div><div className="ts" style={{fontSize:18,fontWeight:600}}>{som.name}</div></div>
+              :<div className="tc tdm tsm" style={{padding:"12px 0"}}>Not yet selected</div>}
+          </div>
+        </div>
+      </div>
+      <div className="card mb16">
+        <div className="ctitle">📝 Sessions — {fmtDate(dashDate)}</div>
+        {dayLogs.length===0?<div className="tdm tsm">No sessions logged for this date.</div>
+          :<table className="dt"><thead><tr><th>Student</th><th>Sabaq</th><th>Sabqi</th><th>Manzil</th></tr></thead>
+            <tbody>{dayLogs.map((l,i)=>(
+              <tr key={i}>
+                <td><button className="btn btn-s btn-sm" onClick={()=>{setSel(l.sid);setView("student");}}>{l.sn}</button></td>
+                <td className="tsm">{l.sabaqStartSurah?`${SURAHS.find(s=>s.n===l.sabaqStartSurah)?.name||""}:${l.sabaqStartAyah||""}`:juzQuarterLabel(l.sabaqJuzStart,l.sabaqQStart)}</td>
+                <td>{l.sabqiResult?<span className={`bdg bdg-${l.sabqiResult==="pass"?"g":"r"}`}>{l.sabqiResult}</span>:"—"}</td>
+                <td className="tsm">{juzQuarterLabel(l.manzilJuzStart,l.manzilQStart)}{l.manzilJuzEnd?" → "+juzQuarterLabel(l.manzilJuzEnd,l.manzilQEnd):""}</td>
+              </tr>
+            ))}</tbody></table>}
+      </div>
+      {dayInc.length>0&&<div className="card">
+        <div className="ctitle">⚠️ Incidents — {fmtDate(dashDate)}</div>
+        {dayInc.map((inc,i)=>(
+          <div key={i} style={{padding:"10px 0",borderBottom:"1px solid #e8e2d8"}}>
+            <span className="fw6">{inc.sn}</span><span className="tsm tsb"> — {inc.description}</span>
+          </div>
+        ))}
+      </div>}
+      {awMd&&<Modal title={awMd==="weekly"?"Set Student of the Week":"Set Student of the Month"} onClose={()=>{setAwMd(null);setAwSuggestion(null);}}
+        footer={<><button className="btn btn-s" onClick={()=>{setAwMd(null);setAwSuggestion(null);}}>Cancel</button><button className="btn btn-g" onClick={saveAward}>Save Award ⭐</button></>}>
+        <Field label="Select Student">
+          <select className="inp sel" value={awSel} onChange={e=>setAwSel(e.target.value)}>
+            <option value="">— Choose —</option>
+            {students.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+        </Field>
+        <div className="dv"/>
+        <button className="btn btn-pu wf mb12" onClick={suggestAward} disabled={awLoading}>
+          {awLoading?"✨ Analyzing...":"✨ AI Suggest Based on Performance"}
+        </button>
+        {awSuggestion&&(
+          <div style={{background:"#f3eefa",border:"1px solid #5a2d8233",borderRadius:6,padding:14}}>
+            <div className="fw6" style={{color:"#5a2d82",marginBottom:6}}>AI Recommends: {awSuggestion.name}</div>
+            <div className="tsm">{awSuggestion.reason}</div>
+            <button className="btn btn-sm btn-pu mt8" onClick={()=>{const s=students.find(x=>x.name===awSuggestion.name);if(s)setAwSel(s.id);}}>Select This Student</button>
+          </div>
+        )}
+      </Modal>}
+    </div>
+  );
+}
+function StudentList({state,setState,setView,setSel}) {
+  const [showAdd,setShowAdd]=useState(false);
+  const [search,setSearch]=useState("");
+  const [sortBy,setSortBy]=useState("name");
+  const [sortDir,setSortDir]=useState("asc");
+  const blank={name:"",parentName:"",parentEmail:"",parentPhone:"",dob:"",enrollDate:todayStr(),juzMemorized:[],juzPartial:[],notes:""};
+  const [form,setForm]=useState({...blank});
+  const F=(k,v)=>setForm(f=>({...f,[k]:v}));
+  const add=()=>{if(!form.name.trim())return;setState(p=>({...p,students:[...p.students,{...form,id:uid()}]}));setForm({...blank});setShowAdd(false);};
+  const toggleSort=(col)=>{if(sortBy===col)setSortDir(d=>d==="asc"?"desc":"asc");else{setSortBy(col);setSortDir("desc");}};
+  const sorted=[...state.students].sort((a,b)=>{
+    if(sortBy==="juz"){const diff=(b.juzMemorized?.length||0)-(a.juzMemorized?.length||0);return sortDir==="asc"?-diff:diff;}
+    return sortDir==="asc"?a.name.localeCompare(b.name):b.name.localeCompare(a.name);
+  });
+  const filtered=sorted.filter(s=>s.name.toLowerCase().includes(search.toLowerCase())||(s.parentName||"").toLowerCase().includes(search.toLowerCase()));
+  return (
+    <div className="fi">
+      <div className="fl fla flb mb20">
+        <div><div className="tb-title">Students</div><div className="tsb tsm">{state.students.length} enrolled</div></div>
+        <button className="btn btn-p" onClick={()=>setShowAdd(true)}>+ Add Student</button>
+      </div>
+      <div className="card">
+        <div className="fl fla g12 mb16" style={{flexWrap:"wrap"}}>
+          <input className="inp" style={{maxWidth:260}} placeholder="Search…" value={search} onChange={e=>setSearch(e.target.value)}/>
+          <div className="fl g8 fla">
+            <span className="txs tdm">Sort:</span>
+            <button className={`btn btn-sm ${sortBy==="name"?"btn-p":"btn-s"}`} onClick={()=>toggleSort("name")}>Name {sortBy==="name"?(sortDir==="asc"?"↑":"↓"):""}</button>
+            <button className={`btn btn-sm ${sortBy==="juz"?"btn-p":"btn-s"}`} onClick={()=>toggleSort("juz")}>Juz {sortBy==="juz"?(sortDir==="asc"?"↑":"↓"):""}</button>
+          </div>
+        </div>
+        {filtered.length===0?<div className="tc tdm" style={{padding:"28px 0"}}>{state.students.length===0?"No students yet.":"No results."}</div>
+          :<table className="dt">
+            <thead><tr><th>Name</th><th>Juz</th><th>Progress</th><th>Parent</th><th>Enrolled</th><th></th></tr></thead>
+            <tbody>{filtered.map(s=>{
+              const pct=Math.round((s.juzMemorized?.length||0)/30*100);
+              return <tr key={s.id}>
+                <td><span className="fw6 tw" style={{cursor:"pointer"}} onClick={()=>{setSel(s.id);setView("student");}}>{s.name}</span></td>
+                <td><span className="bdg bdg-t">{s.juzMemorized?.length||0}/30</span></td>
+                <td style={{minWidth:100}}>
+                  <div className="pb"><div className="pbf" style={{width:`${pct}%`,background:"#1a6b6b"}}/></div>
+                  <div className="txs tdm mt8">{pct}%</div>
+                </td>
+                <td className="tsm tsb">{s.parentName||"—"}</td>
+                <td className="tsm tsb">{s.enrollDate?fmtDate(s.enrollDate):"—"}</td>
+                <td><button className="btn btn-s btn-sm" onClick={()=>{setSel(s.id);setView("student");}}>Open →</button></td>
+              </tr>;
+            })}</tbody>
+          </table>}
+      </div>
+      {showAdd&&<Modal title="Add New Student" onClose={()=>setShowAdd(false)} wide
+        footer={<><button className="btn btn-s" onClick={()=>setShowAdd(false)}>Cancel</button><button className="btn btn-p" onClick={add}>Add Student</button></>}>
+        <div className="g2">
+          <Field label="Student Name *"><input className="inp" value={form.name} onChange={e=>F("name",e.target.value)}/></Field>
+          <Field label="Date of Birth"><input className="inp" type="date" value={form.dob} onChange={e=>F("dob",e.target.value)}/></Field>
+          <Field label="Parent Name"><input className="inp" value={form.parentName} onChange={e=>F("parentName",e.target.value)}/></Field>
+          <Field label="Parent Email"><input className="inp" type="email" value={form.parentEmail} onChange={e=>F("parentEmail",e.target.value)}/></Field>
+          <Field label="Parent Phone"><input className="inp" value={form.parentPhone} onChange={e=>F("parentPhone",e.target.value)}/></Field>
+          <Field label="Enrollment Date"><input className="inp" type="date" value={form.enrollDate} onChange={e=>F("enrollDate",e.target.value)}/></Field>
+        </div>
+        <Field label="Juz Memorized"><JuzGrid selected={form.juzMemorized} partial={form.juzPartial} onChange={(m,p)=>setForm(f=>({...f,juzMemorized:m,juzPartial:p}))}/></Field>
+        <Field label="Notes"><textarea className="inp" value={form.notes} onChange={e=>F("notes",e.target.value)}/></Field>
+      </Modal>}
+    </div>
+  );
+}
+function StudentDetail({studentId,state,setState,onBack}) {
+  const student=state.students.find(s=>s.id===studentId);
+  const [tab,setTab]=useState("overview");
+  const [logMd,setLogMd]=useState(null);
+  const [incMd,setIncMd]=useState(null);
+  const [grvMd,setGrvMd]=useState(null);
+  const [emailMd,setEmailMd]=useState(null);
+  const [editMd,setEditMd]=useState(false);
+  const [juzTestMd,setJuzTestMd]=useState(false);
+  const [goalMd,setGoalMd]=useState(null);
+  const [editF,setEditF]=useState(student||{});
+  const lastLog=(state.logs[studentId]||[]).slice(-1)[0];
+  const blankLog={
+    date:todayStr(),
+    sabaqStartSurah:lastLog?.sabaqEndSurah||"",sabaqStartAyah:lastLog?.sabaqEndAyah||"",
+    sabaqEndSurah:"",sabaqEndAyah:"",
+    sabaqJuzStart:"",sabaqQStart:null,sabaqJuzEnd:"",sabaqQEnd:null,
+    sabaqLate:false,sabaqLateReason:"",
+    leftEarly:false,leftEarlyTime:"",leftEarlyReason:"",
+    lateLunch:false,lateLunchTime:"",lateLunchReason:"",
+    sabqiResult:"",
+    manzilJuzStart:"",manzilQStart:null,manzilJuzEnd:"",manzilQEnd:null,
+    manzilResult:"",mistakeTypes:[],generalNotes:""
+  };
+  const [lf,setLf]=useState({...blankLog});
+  const Lf=(k,v)=>setLf(f=>({...f,[k]:v}));
+  const blankInc={date:todayStr(),description:"",action:""};
+  const blankGrv={date:todayStr(),description:"",resolution:""};
+  const [incF,setIncF]=useState({...blankInc});
+  const [grvF,setGrvF]=useState({...blankGrv});
+  const [jtF,setJtF]=useState({date:todayStr(),juz:"",result:"pass",notes:""});
+  const [goalF,setGoalF]=useState({title:"",description:"",targetDate:"",type:"juz_month",achieved:false});
+  if(!student)return <div className="tdm">Student not found.</div>;
+  const logs=state.logs[studentId]||[];
+  const incidents=state.incidents[studentId]||[];
+  const grievances=state.grievances[studentId]||[];
+  const juzTests=state.juzTests?.[studentId]||[];
+  const goals=state.goals?.[studentId]||[];
+  const att=state.attendance[studentId]||{};
+  const markAtt=(sid,ds,status)=>setState(p=>{const a={...p.attendance};a[sid]={...a[sid]};if(!status)delete a[sid][ds];else a[sid][ds]=status;return {...p,attendance:a};});
+  const saveLog=()=>{
+    const logData={...lf,id:logMd?.edit?.id||uid()};
+    setState(p=>{const ex=p.logs[studentId]||[];const up=logMd?.edit?ex.map(l=>l.id===logData.id?logData:l):[...ex,logData];return {...p,logs:{...p.logs,[studentId]:up}};});
+    setLf({...blankLog});setLogMd(null);
+  };
+  const deleteLog=(id)=>setState(p=>({...p,logs:{...p.logs,[studentId]:(p.logs[studentId]||[]).filter(l=>l.id!==id)}}));
+  const saveInc=()=>{
+    const data={...incF,id:incMd?.edit?.id||uid()};
+    setState(p=>{const ex=p.incidents[studentId]||[];const up=incMd?.edit?ex.map(x=>x.id===data.id?data:x):[...ex,data];return {...p,incidents:{...p.incidents,[studentId]:up}};});
+    setIncMd(null);
+    if(!incMd?.edit)setEmailMd({type:"incident",data:{description:incF.description,action:incF.action}});
+  };
+  const deleteInc=(id)=>setState(p=>({...p,incidents:{...p.incidents,[studentId]:(p.incidents[studentId]||[]).filter(x=>x.id!==id)}}));
+  const saveGrv=()=>{
+    const data={...grvF,id:grvMd?.edit?.id||uid()};
+    setState(p=>{const ex=p.grievances[studentId]||[];const up=grvMd?.edit?ex.map(x=>x.id===data.id?data:x):[...ex,data];return {...p,grievances:{...p.grievances,[studentId]:up}};});
+    setGrvMd(null);
+  };
+  const deleteGrv=(id)=>setState(p=>({...p,grievances:{...p.grievances,[studentId]:(p.grievances[studentId]||[]).filter(x=>x.id!==id)}}));
+  const saveJuzTest=()=>{
+    setState(p=>({...p,juzTests:{...p.juzTests,[studentId]:[...(p.juzTests?.[studentId]||[]),{...jtF,id:uid()}]}}));
+    if(jtF.result==="pass")setEmailMd({type:"juztest",data:{juz:jtF.juz,notes:jtF.notes}});
+    setJuzTestMd(false);setJtF({date:todayStr(),juz:"",result:"pass",notes:""});
+  };
+  const saveGoal=()=>{
+    const data={...goalF,id:goalMd?.edit?.id||uid(),createdDate:goalMd?.edit?.createdDate||todayStr()};
+    setState(p=>{const ex=p.goals?.[studentId]||[];const up=goalMd?.edit?ex.map(x=>x.id===data.id?data:x):[...ex,data];return {...p,goals:{...p.goals,[studentId]:up}};});
+    setGoalMd(null);
+  };
+  const markGoalAchieved=(gid)=>{
+    setState(p=>{const ex=p.goals?.[studentId]||[];return {...p,goals:{...p.goals,[studentId]:ex.map(g=>g.id===gid?{...g,achieved:true,achievedDate:todayStr()}:g)}};});
+    const g=goals.find(x=>x.id===gid);
+    if(g)setEmailMd({type:"goal",data:{goalTitle:g.title}});
+  };
+  const deleteGoal=(id)=>setState(p=>({...p,goals:{...p.goals,[studentId]:(p.goals?.[studentId]||[]).filter(x=>x.id!==id)}}));
+  const saveEdit=()=>{setState(p=>({...p,students:p.students.map(s=>s.id===studentId?{...editF,id:studentId}:s)}));setEditMd(false);};
+  const totalP=Object.values(att).filter(v=>v==="present").length;
+  const totalA=Object.values(att).filter(v=>v==="absent").length;
+  const totalT=Object.values(att).filter(v=>v==="tardy").length;
+  const sabqiPass=logs.filter(l=>l.sabqiResult==="pass").length;
+  const sabqiTot=logs.filter(l=>l.sabqiResult).length||1;
+  const manzPass=logs.filter(l=>l.manzilResult==="pass").length;
+  const manzTot=logs.filter(l=>l.manzilResult).length||1;
+  const allMistakes=logs.flatMap(l=>l.mistakeTypes||[]);
+  const mistakeFreq={};allMistakes.forEach(m=>mistakeFreq[m]=(mistakeFreq[m]||0)+1);
+  const topMistakes=Object.entries(mistakeFreq).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const emailBody=emailMd?genEmail({student,type:emailMd.type,data:emailMd.data}):"";
+  const openLogEdit=(log)=>{setLf({...blankLog,...log});setLogMd({edit:log});};
+  const openIncEdit=(inc)=>{setIncF({...blankInc,...inc});setIncMd({edit:inc});};
+  const openGrvEdit=(grv)=>{setGrvF({...blankGrv,...grv});setGrvMd({edit:grv});};
+  return (
+    <div className="fi">
+      <button className="btn btn-s btn-sm mb16" onClick={onBack}>← All Students</button>
+      <div className="card mb20">
+        <div className="fl fla flb" style={{flexWrap:"wrap",gap:12}}>
+          <div className="fl fla g16">
+            <div style={{width:48,height:48,borderRadius:"50%",background:"#1a6b6b",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:20,fontFamily:"Cormorant Garamond,serif",fontWeight:700,flexShrink:0}}>{student.name[0]}</div>
+            <div>
+              <div className="ts" style={{fontSize:22,fontWeight:700}}>{student.name}</div>
+              <div className="tsb tsm">{student.parentName||"—"} · {student.parentEmail||"No email"}</div>
+              <div className="fl g8 mt8">
+                <span className="bdg bdg-t">{(student.juzMemorized||[]).length}/30 Juz</span>
+                {student.enrollDate&&<span className="bdg bdg-gr">Since {fmtDate(student.enrollDate)}</span>}
+              </div>
+            </div>
+          </div>
+          <div className="fl g8" style={{flexWrap:"wrap"}}>
+            <button className="btn btn-s btn-sm" onClick={()=>{setEditF({...student});setEditMd(true);}}>Edit</button>
+            <button className="btn btn-p btn-sm" onClick={()=>{setLf({...blankLog});setLogMd("add");}}>+ Log Session</button>
+            <button className="btn btn-s btn-sm" onClick={()=>setJuzTestMd(true)}>Juz Test</button>
+            <button className="btn btn-d btn-sm" onClick={()=>{setIncF({...blankInc});setIncMd("add");}}>Report Incident</button>
+            <button className="btn btn-s btn-sm" onClick={()=>{setGrvF({...blankGrv});setGrvMd("add");}}>Log Grievance</button>
+          </div>
+        </div>
+      </div>
+      <div className="tabs">
+        {["overview","sessions","attendance","juz map","patterns","juz tests","goals","incidents","emails"].map(t=>(
+          <button key={t} className={`tab ${tab===t?"on":""}`} onClick={()=>setTab(t)}>{t.charAt(0).toUpperCase()+t.slice(1)}</button>
+        ))}
+      </div>
+      {tab==="overview"&&(
+        <div>
+          <div className="g3 mb20">
+            <div className="sc"><div className="sv" style={{color:"#2a6444"}}>{totalP}</div><div className="sl">Days Present</div></div>
+            <div className="sc"><div className="sv" style={{color:"#892020"}}>{totalA}</div><div className="sl">Days Absent</div></div>
+            <div className="sc"><div className="sv" style={{color:"#9a4e10"}}>{totalT}</div><div className="sl">Days Tardy</div></div>
+            <div className="sc"><div className="sv" style={{color:"#1a6b6b"}}>{Math.round(sabqiPass/sabqiTot*100)}%</div><div className="sl">Sabqi Pass Rate</div></div>
+            <div className="sc"><div className="sv" style={{color:"#1a6b6b"}}>{Math.round(manzPass/manzTot*100)}%</div><div className="sl">Manzil Pass Rate</div></div>
+            <div className="sc"><div className="sv" style={{color:"#b07c2a"}}>{logs.filter(l=>l.sabaqLate).length}</div><div className="sl">Late Sabaq Days</div></div>
+          </div>
+          {student.notes&&<div className="card mb16"><div className="tsb txs mb8">NOTES</div><div className="tsm">{student.notes}</div></div>}
+          <div className="card">
+            <div className="ctitle">Hifz Progress</div>
+            <div className="fl fla g12 mb12">
+              <span className="bdg bdg-t">{(student.juzMemorized||[]).length} Memorized</span>
+              <span className="bdg bdg-gld">{(student.juzPartial||[]).length} In Progress</span>
+              <span className="bdg bdg-gr">{30-(student.juzMemorized||[]).length-(student.juzPartial||[]).length} Remaining</span>
+            </div>
+            <div className="pb" style={{height:8}}><div className="pbf" style={{width:`${Math.round((student.juzMemorized||[]).length/30*100)}%`,background:"#1a6b6b"}}/></div>
+          </div>
+        </div>
+      )}
+      {tab==="sessions"&&(
+        <div className="card">
+          <div className="fl fla flb mb16"><div className="ctitle mb0">Session Logs ({logs.length})</div><button className="btn btn-p btn-sm" onClick={()=>{setLf({...blankLog});setLogMd("add");}}>+ Log Session</button></div>
+          {logs.length===0?<div className="tdm tsm">No sessions logged yet.</div>
+            :<table className="dt">
+              <thead><tr><th>Date</th><th>Sabaq From</th><th>Sabaq To</th><th>Late</th><th>Sabqi</th><th>Manzil</th><th>Flags</th><th></th></tr></thead>
+              <tbody>{[...logs].reverse().map((l,i)=>(
+                <tr key={i}>
+                  <td className="tsm">{fmtDate(l.date)}</td>
+                  <td className="tsm">{l.sabaqStartSurah?`${SURAHS.find(s=>s.n===l.sabaqStartSurah)?.name}:${l.sabaqStartAyah}`:juzQuarterLabel(l.sabaqJuzStart,l.sabaqQStart)}</td>
+                  <td className="tsm">{l.sabaqEndSurah?`${SURAHS.find(s=>s.n===l.sabaqEndSurah)?.name}:${l.sabaqEndAyah}`:juzQuarterLabel(l.sabaqJuzEnd,l.sabaqQEnd)}</td>
+                  <td>{l.sabaqLate?<span className="bdg bdg-o">Late</span>:"—"}</td>
+                  <td>{l.sabqiResult?<span className={`bdg bdg-${l.sabqiResult==="pass"?"g":"r"}`}>{l.sabqiResult}</span>:"—"}</td>
+                  <td className="tsm">{l.manzilJuzStart?`${juzQuarterLabel(l.manzilJuzStart,l.manzilQStart)} → ${juzQuarterLabel(l.manzilJuzEnd,l.manzilQEnd)}`:"—"}</td>
+                  <td className="txs">{l.leftEarly&&<span className="bdg bdg-r">Early</span>}{l.lateLunch&&<span className="bdg bdg-o">Late Lunch</span>}</td>
+                  <td><div className="fl g8">
+                    <button className="btn btn-s btn-sm" onClick={()=>openLogEdit(l)}>Edit</button>
+                    <button className="btn btn-d btn-sm" onClick={()=>{if(window.confirm("Delete this log?"))deleteLog(l.id);}}>Del</button>
+                  </div></td>
+                </tr>
+              ))}</tbody>
+            </table>}
+        </div>
+      )}
+      {tab==="attendance"&&(
+        <div className="card">
+          <div className="fl fla flb mb16">
+            <div className="ctitle mb0">Attendance Calendar</div>
+            <div className="fl g8">
+              <button className="btn btn-s btn-sm" onClick={()=>{markAtt(studentId,todayStr(),"absent");setEmailMd({type:"absence",data:{}});}}>Absent Today + Email</button>
+              <button className="btn btn-s btn-sm" onClick={()=>{markAtt(studentId,todayStr(),"tardy");setEmailMd({type:"tardy",data:{}});}}>Tardy Today + Email</button>
+            </div>
+          </div>
+          <AttCalView studentId={studentId} attendance={state.attendance} onMark={markAtt}/>
+        </div>
+      )}
+      {tab==="juz map"&&(
+        <div className="card">
+          <div className="fl fla flb mb16"><div className="ctitle mb0">Juz Tracker</div><div className="fl g8"><span className="bdg bdg-t">{(student.juzMemorized||[]).length} Memorized</span><span className="bdg bdg-gld">{(student.juzPartial||[]).length} In Progress</span></div></div>
+          <JuzGrid selected={student.juzMemorized||[]} partial={student.juzPartial||[]}
+            onChange={(m,p)=>setState(prev=>({...prev,students:prev.students.map(s=>s.id===studentId?{...s,juzMemorized:m,juzPartial:p}:s)}))}/>
+        </div>
+      )}
+      {tab==="patterns"&&(
+        <div className="g2">
+          <div className="card">
+            <div className="ctitle">Mistake Patterns</div>
+            {topMistakes.length===0?<div className="tdm tsm">No data yet.</div>
+              :topMistakes.map(([m,c])=>(
+                <div key={m} className="mb12">
+                  <div className="fl fla flb mb8"><span className="tsm fw6">{m}</span><span className="bdg bdg-r">{c}×</span></div>
+                  <div className="pb"><div className="pbf" style={{width:`${Math.round(c/topMistakes[0][1]*100)}%`,background:"#892020"}}/></div>
+                </div>
+              ))}
+          </div>
+          <div className="card">
+            <div className="ctitle">Sabaq / Manzil Balance</div>
+            <div className="mb16">
+              <div className="tsb txs mb8">SABQI PASS RATE</div>
+              <div className="pb mb8"><div className="pbf" style={{width:`${Math.round(sabqiPass/sabqiTot*100)}%`,background:"#1a6b6b"}}/></div>
+              <span className="bdg bdg-t">{Math.round(sabqiPass/sabqiTot*100)}%</span>
+            </div>
+            <div>
+              <div className="tsb txs mb8">MANZIL PASS RATE</div>
+              <div className="pb mb8"><div className="pbf" style={{width:`${Math.round(manzPass/manzTot*100)}%`,background:"#2a6444"}}/></div>
+              <span className="bdg bdg-g">{Math.round(manzPass/manzTot*100)}%</span>
+            </div>
+            {Math.abs(Math.round(sabqiPass/sabqiTot*100)-Math.round(manzPass/manzTot*100))>20&&(
+              <div style={{marginTop:14,padding:10,background:"#fef4ec",borderRadius:4,borderLeft:"3px solid #9a4e10",fontSize:12,color:"#9a4e10"}}>
+                ⚠ Imbalance detected. Consider adjusting focus.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {tab==="juz tests"&&(
+        <div className="card">
+          <div className="fl fla flb mb16"><div className="ctitle mb0">Juz Tests ({juzTests.length})</div><button className="btn btn-p btn-sm" onClick={()=>setJuzTestMd(true)}>+ Log Juz Test</button></div>
+          {juzTests.length===0?<div className="tdm tsm">No Juz tests logged yet.</div>
+            :<table className="dt">
+              <thead><tr><th>Date</th><th>Juz</th><th>Result</th><th>Notes</th></tr></thead>
+              <tbody>{[...juzTests].reverse().map((t,i)=>(
+                <tr key={i}>
+                  <td className="tsm">{fmtDate(t.date)}</td>
+                  <td><span className="bdg bdg-t">Juz {t.juz} — {JUZ_NAMES[t.juz]||""}</span></td>
+                  <td><span className={`bdg bdg-${t.result==="pass"?"g":t.result==="fail"?"r":"o"}`}>{t.result}</span></td>
+                  <td className="tsm tsb">{t.notes||"—"}</td>
+                </tr>
+              ))}</tbody>
+            </table>}
+        </div>
+      )}
+      {tab==="goals"&&(
+        <div className="card">
+          <div className="fl fla flb mb16"><div className="ctitle mb0">Student Goals ({goals.length})</div><button className="btn btn-p btn-sm" onClick={()=>{setGoalF({title:"",description:"",targetDate:"",type:"juz_month",achieved:false});setGoalMd("add");}}>+ Set Goal</button></div>
+          {goals.length===0?<div className="tdm tsm">No goals set yet.</div>
+            :goals.map((g,i)=>(
+              <div key={i} style={{padding:14,background:g.achieved?"#edf5f0":"#f7f5f0",borderRadius:6,marginBottom:10,border:`1px solid ${g.achieved?"#2a6444":"#e8e2d8"}`,borderLeft:`3px solid ${g.achieved?"#2a6444":"#1a6b6b"}`}}>
+                <div className="fl fla flb mb8">
+                  <div><div className="fw6">{g.title}</div><div className="txs tsb">{g.description}</div></div>
+                  <div className="fl g8">
+                    {!g.achieved&&<button className="btn btn-g btn-sm" onClick={()=>markGoalAchieved(g.id)}>✓ Achieved</button>}
+                    <button className="btn btn-s btn-sm" onClick={()=>{setGoalF({...g});setGoalMd({edit:g});}}>Edit</button>
+                    <button className="btn btn-d btn-sm" onClick={()=>{if(window.confirm("Delete goal?"))deleteGoal(g.id);}}>Del</button>
+                  </div>
+                </div>
+                {g.achieved?<span className="bdg bdg-g">✓ Achieved {g.achievedDate?fmtDate(g.achievedDate):""}</span>
+                  :<div className="fl fla g12 txs"><span className="bdg bdg-t">{g.type}</span>{g.targetDate&&<span className="tsb">Target: {fmtDate(g.targetDate)}</span>}</div>}
+              </div>
+            ))}
+        </div>
+      )}
+      {tab==="incidents"&&(
+        <div className="g2">
+          <div className="card">
+            <div className="fl fla flb mb16"><div className="ctitle mb0">Incidents ({incidents.length})</div><button className="btn btn-d btn-sm" onClick={()=>{setIncF({...blankInc});setIncMd("add");}}>Report</button></div>
+            {incidents.length===0?<div className="tdm tsm">No incidents.</div>
+              :incidents.map((inc,i)=>(
+                <div key={i} style={{padding:12,background:"#fdf1f1",borderRadius:4,marginBottom:8,borderLeft:"3px solid #892020"}}>
+                  <div className="fl fla flb mb8"><span className="txs tsb">{fmtDate(inc.date)}</span>
+                    <div className="fl g8">
+                      <button className="btn btn-s btn-sm" onClick={()=>setEmailMd({type:"incident",data:{description:inc.description,action:inc.action}})}>Email</button>
+                      <button className="btn btn-s btn-sm" onClick={()=>openIncEdit(inc)}>Edit</button>
+                      <button className="btn btn-d btn-sm" onClick={()=>{if(window.confirm("Delete?"))deleteInc(inc.id);}}>Del</button>
+                    </div>
+                  </div>
+                  <div className="tsm fw6">{inc.description}</div>
+                  {inc.action&&<div className="txs tsb mt8">Action: {inc.action}</div>}
+                </div>
+              ))}
+          </div>
+          <div className="card">
+            <div className="fl fla flb mb16"><div className="ctitle mb0">Grievances ({grievances.length})</div><button className="btn btn-s btn-sm" onClick={()=>{setGrvF({...blankGrv});setGrvMd("add");}}>Log</button></div>
+            {grievances.length===0?<div className="tdm tsm">No grievances.</div>
+              :grievances.map((g,i)=>(
+                <div key={i} style={{padding:12,background:"#fef4ec",borderRadius:4,marginBottom:8,borderLeft:"3px solid #9a4e10"}}>
+                  <div className="fl fla flb mb8"><span className="txs tsb">{fmtDate(g.date)}</span>
+                    <div className="fl g8">
+                      <button className="btn btn-s btn-sm" onClick={()=>openGrvEdit(g)}>Edit</button>
+                      <button className="btn btn-d btn-sm" onClick={()=>{if(window.confirm("Delete?"))deleteGrv(g.id);}}>Del</button>
+                    </div>
+                  </div>
+                  <div className="tsm fw6">{g.description}</div>
+                  {g.resolution&&<div className="txs tsb mt8">Resolution: {g.resolution}</div>}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+      {tab==="emails"&&(
+        <div className="card">
+          <div className="ctitle">Parent Communication</div>
+          <div className="fl g8 mb20" style={{flexWrap:"wrap"}}>
+            <button className="btn btn-s btn-sm" onClick={()=>setEmailMd({type:"absence",data:{}})}>Absence Email</button>
+            <button className="btn btn-s btn-sm" onClick={()=>setEmailMd({type:"tardy",data:{}})}>Tardy Email</button>
+            <button className="btn btn-s btn-sm" onClick={()=>setEmailMd({type:"progress",data:{currentSabaq:"",manzilStatus:"On track"}})}>Progress Report</button>
+          </div>
+          {(state.parentEmails[studentId]||[]).length===0?<div className="tdm tsm">No emails logged yet.</div>
+            :(state.parentEmails[studentId]||[]).map((e,i)=>(
+              <div key={i} style={{padding:10,background:"#f7f5f0",border:"1px solid #e8e2d8",borderRadius:4,marginBottom:8}} className="fl fla flb">
+                <span className="bdg bdg-gr">{e.type}</span><span className="txs tdm">{fmtDate(e.date)}</span>
+              </div>
+            ))}
+        </div>
+      )}
+      {logMd&&(
+        <Modal title={logMd?.edit?"Edit Session Log":"Log Session"} onClose={()=>setLogMd(null)} wide
+          footer={<><button className="btn btn-s" onClick={()=>setLogMd(null)}>Cancel</button><button className="btn btn-p" onClick={saveLog}>Save Log</button></>}>
+          <div className="g2 mb12">
+            <Field label="Date"><input className="inp" type="date" value={lf.date} onChange={e=>Lf("date",e.target.value)}/></Field>
+            <div/>
+          </div>
+          <div style={{background:"#eef6f6",borderRadius:6,padding:14,marginBottom:14}}>
+            <div className="tsb txs fw6 mb12" style={{color:"#1a6b6b"}}>SABAQ — SURAH / AYAH</div>
+            <div className="g2 mb8">
+              <SurahAyahPicker label="Sabaq Start" surah={lf.sabaqStartSurah} ayah={lf.sabaqStartAyah} onSurah={v=>Lf("sabaqStartSurah",v)} onAyah={v=>Lf("sabaqStartAyah",v)}/>
+              <SurahAyahPicker label="Sabaq End" surah={lf.sabaqEndSurah} ayah={lf.sabaqEndAyah} onSurah={v=>Lf("sabaqEndSurah",v)} onAyah={v=>Lf("sabaqEndAyah",v)}/>
+            </div>
+            <div className="tsb txs fw6 mb8" style={{color:"#1a6b6b",marginTop:10}}>OR — JUZ / QUARTER</div>
+            <div className="g2">
+              <JuzQuarterPicker label="Sabaq Start (Juz)" juz={lf.sabaqJuzStart} quarter={lf.sabaqQStart} onJuz={v=>Lf("sabaqJuzStart",v)} onQuarter={v=>Lf("sabaqQStart",v)}/>
+              <JuzQuarterPicker label="Sabaq End (Juz)" juz={lf.sabaqJuzEnd} quarter={lf.sabaqQEnd} onJuz={v=>Lf("sabaqJuzEnd",v)} onQuarter={v=>Lf("sabaqQEnd",v)}/>
+            </div>
+          </div>
+          <div className="fl fla g12 mb12">
+            <label style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer",fontSize:13}}>
+              <input type="checkbox" checked={lf.sabaqLate} onChange={e=>Lf("sabaqLate",e.target.checked)}/> Sabaq was late
+            </label>
+            {lf.sabaqLate&&<input className="inp" style={{flex:1}} value={lf.sabaqLateReason} onChange={e=>Lf("sabaqLateReason",e.target.value)} placeholder="Reason…"/>}
+          </div>
+          <div className="g2 mb12">
+            <div>
+              <label style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer",fontSize:13}} className="mb8">
+                <input type="checkbox" checked={lf.leftEarly} onChange={e=>Lf("leftEarly",e.target.checked)}/> Left class early
+              </label>
+              {lf.leftEarly&&<div className="fl g8"><input className="inp" style={{width:90}} type="time" value={lf.leftEarlyTime} onChange={e=>Lf("leftEarlyTime",e.target.value)}/><input className="inp" style={{flex:1}} value={lf.leftEarlyReason} onChange={e=>Lf("leftEarlyReason",e.target.value)} placeholder="Reason…"/></div>}
+            </div>
+            <div>
+              <label style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer",fontSize:13}} className="mb8">
+                <input type="checkbox" checked={lf.lateLunch} onChange={e=>Lf("lateLunch",e.target.checked)}/> Late back from lunch
+              </label>
+              {lf.lateLunch&&<div className="fl g8"><input className="inp" style={{width:90}} type="time" value={lf.lateLunchTime} onChange={e=>Lf("lateLunchTime",e.target.value)}/><input className="inp" style={{flex:1}} value={lf.lateLunchReason} onChange={e=>Lf("lateLunchReason",e.target.value)} placeholder="Reason…"/></div>}
+            </div>
+          </div>
+          <div className="g2 mb12">
+            <Field label="Sabqi Result">
+              <select className="inp sel" value={lf.sabqiResult} onChange={e=>Lf("sabqiResult",e.target.value)}>
+                <option value="">—</option><option value="pass">Pass ✓</option><option value="fail">Fail ✗</option><option value="not-done">Not done</option>
+              </select>
+            </Field>
+            <Field label="Manzil Result">
+              <select className="inp sel" value={lf.manzilResult} onChange={e=>Lf("manzilResult",e.target.value)}>
+                <option value="">—</option><option value="pass">Pass ✓</option><option value="fail">Fail ✗</option><option value="not-done">Not done</option>
+              </select>
+            </Field>
+          </div>
+          <div style={{background:"#fdf7ec",borderRadius:6,padding:14,marginBottom:14}}>
+            <div className="tsb txs fw6 mb12" style={{color:"#b07c2a"}}>MANZIL RANGE (Juz / Quarter)</div>
+            <div className="g2">
+              <JuzQuarterPicker label="Manzil From" juz={lf.manzilJuzStart} quarter={lf.manzilQStart} onJuz={v=>Lf("manzilJuzStart",v)} onQuarter={v=>Lf("manzilQStart",v)}/>
+              <JuzQuarterPicker label="Manzil Until" juz={lf.manzilJuzEnd} quarter={lf.manzilQEnd} onJuz={v=>Lf("manzilJuzEnd",v)} onQuarter={v=>Lf("manzilQEnd",v)}/>
+            </div>
+          </div>
+          <Field label="Mistake Types">
+            <div className="fl g8" style={{flexWrap:"wrap"}}>
+              {MISTAKE_TYPES.map(m=>(
+                <label key={m} style={{display:"flex",alignItems:"center",gap:5,fontSize:12,cursor:"pointer",padding:"4px 10px",borderRadius:16,border:`1px solid ${lf.mistakeTypes.includes(m)?"#1a6b6b":"#e8e2d8"}`,background:lf.mistakeTypes.includes(m)?"#eef6f6":"transparent",color:lf.mistakeTypes.includes(m)?"#1a6b6b":"#6b6060",transition:"all .12s"}}>
+                  <input type="checkbox" style={{display:"none"}} checked={lf.mistakeTypes.includes(m)} onChange={e=>Lf("mistakeTypes",e.target.checked?[...lf.mistakeTypes,m]:lf.mistakeTypes.filter(x=>x!==m))}/>{m}
+                </label>
+              ))}
+            </div>
+          </Field>
+          <Field label="Session Notes"><textarea className="inp" value={lf.generalNotes} onChange={e=>Lf("generalNotes",e.target.value)} placeholder="Observations, effort level, areas to focus…"/></Field>
+        </Modal>
+      )}
+      {incMd&&(
+        <Modal title={incMd?.edit?"Edit Incident":"Report Incident"} onClose={()=>setIncMd(null)}
+          footer={<><button className="btn btn-s" onClick={()=>setIncMd(null)}>Cancel</button><button className="btn btn-d" onClick={saveInc}>{incMd?.edit?"Save Changes":"Save & Generate Email"}</button></>}>
+          <Field label="Date"><input className="inp" type="date" value={incF.date} onChange={e=>setIncF(f=>({...f,date:e.target.value}))}/></Field>
+          <Field label="Description *"><textarea className="inp" value={incF.description} onChange={e=>setIncF(f=>({...f,description:e.target.value}))} placeholder="What happened…"/></Field>
+          <Field label="Action Taken"><textarea className="inp" value={incF.action} onChange={e=>setIncF(f=>({...f,action:e.target.value}))} placeholder="Response…"/></Field>
+        </Modal>
+      )}
+      {grvMd&&(
+        <Modal title={grvMd?.edit?"Edit Grievance":"Log Grievance"} onClose={()=>setGrvMd(null)}
+          footer={<><button className="btn btn-s" onClick={()=>setGrvMd(null)}>Cancel</button><button className="btn btn-g" onClick={saveGrv}>Save</button></>}>
+          <Field label="Date"><input className="inp" type="date" value={grvF.date} onChange={e=>setGrvF(f=>({...f,date:e.target.value}))}/></Field>
+          <Field label="Description *"><textarea className="inp" value={grvF.description} onChange={e=>setGrvF(f=>({...f,description:e.target.value}))} placeholder="Nature of grievance…"/></Field>
+          <Field label="Resolution"><textarea className="inp" value={grvF.resolution} onChange={e=>setGrvF(f=>({...f,resolution:e.target.value}))} placeholder="How it was addressed…"/></Field>
+        </Modal>
+      )}
+      {juzTestMd&&(
+        <Modal title="Log Juz Test" onClose={()=>setJuzTestMd(false)}
+          footer={<><button className="btn btn-s" onClick={()=>setJuzTestMd(false)}>Cancel</button><button className="btn btn-p" onClick={saveJuzTest}>Save Juz Test</button></>}>
+          <Field label="Date"><input className="inp" type="date" value={jtF.date} onChange={e=>setJtF(f=>({...f,date:e.target.value}))}/></Field>
+          <Field label="Juz Number">
+            <select className="inp sel" value={jtF.juz} onChange={e=>setJtF(f=>({...f,juz:e.target.value}))}>
+              <option value="">— Select Juz —</option>
+              {Array.from({length:30},(_,i)=>i+1).map(j=><option key={j} value={j}>Juz {j} — {JUZ_NAMES[j]}</option>)}
+            </select>
+          </Field>
+          <Field label="Result">
+            <select className="inp sel" value={jtF.result} onChange={e=>setJtF(f=>({...f,result:e.target.value}))}>
+              <option value="pass">Pass ✓</option><option value="fail">Fail ✗</option><option value="needs-repeat">Needs Repeat</option>
+            </select>
+          </Field>
+          <Field label="Notes"><textarea className="inp" value={jtF.notes} onChange={e=>setJtF(f=>({...f,notes:e.target.value}))} placeholder="Examiner notes…"/></Field>
+        </Modal>
+      )}
+      {goalMd&&(
+        <Modal title={goalMd?.edit?"Edit Goal":"Set Student Goal"} onClose={()=>setGoalMd(null)}
+          footer={<><button className="btn btn-s" onClick={()=>setGoalMd(null)}>Cancel</button><button className="btn btn-p" onClick={saveGoal}>Save Goal</button></>}>
+          <Field label="Goal Title *"><input className="inp" value={goalF.title} onChange={e=>setGoalF(f=>({...f,title:e.target.value}))} placeholder="e.g. Recite 2 Juz for Manzil"/></Field>
+          <Field label="Description"><textarea className="inp" value={goalF.description} onChange={e=>setGoalF(f=>({...f,description:e.target.value}))} placeholder="More detail…"/></Field>
+          <div className="g2">
+            <Field label="Goal Type">
+              <select className="inp sel" value={goalF.type} onChange={e=>setGoalF(f=>({...f,type:e.target.value}))}>
+                <option value="juz_month">Complete Juz per month</option>
+                <option value="manzil_juz">Manzil target (Juz)</option>
+                <option value="attendance">Attendance goal</option>
+                <option value="sabqi_rate">Sabqi pass rate</option>
+                <option value="custom">Custom</option>
+              </select>
+            </Field>
+            <Field label="Target Date"><input className="inp" type="date" value={goalF.targetDate} onChange={e=>setGoalF(f=>({...f,targetDate:e.target.value}))}/></Field>
+          </div>
+        </Modal>
+      )}
+      {editMd&&(
+        <Modal title="Edit Profile" onClose={()=>setEditMd(false)} wide
+          footer={<><button className="btn btn-s" onClick={()=>setEditMd(false)}>Cancel</button><button className="btn btn-p" onClick={saveEdit}>Save Changes</button></>}>
+          <div className="g2">
+            <Field label="Student Name"><input className="inp" value={editF.name||""} onChange={e=>setEditF(f=>({...f,name:e.target.value}))}/></Field>
+            <Field label="Date of Birth"><input className="inp" type="date" value={editF.dob||""} onChange={e=>setEditF(f=>({...f,dob:e.target.value}))}/></Field>
+            <Field label="Parent Name"><input className="inp" value={editF.parentName||""} onChange={e=>setEditF(f=>({...f,parentName:e.target.value}))}/></Field>
+            <Field label="Parent Email"><input className="inp" value={editF.parentEmail||""} onChange={e=>setEditF(f=>({...f,parentEmail:e.target.value}))}/></Field>
+            <Field label="Parent Phone"><input className="inp" value={editF.parentPhone||""} onChange={e=>setEditF(f=>({...f,parentPhone:e.target.value}))}/></Field>
+            <Field label="Enrollment Date"><input className="inp" type="date" value={editF.enrollDate||""} onChange={e=>setEditF(f=>({...f,enrollDate:e.target.value}))}/></Field>
+          </div>
+          <Field label="Notes"><textarea className="inp" value={editF.notes||""} onChange={e=>setEditF(f=>({...f,notes:e.target.value}))}/></Field>
+        </Modal>
+      )}
+      {emailMd&&(
+        <Modal title="Parent Email" onClose={()=>setEmailMd(null)} wide
+          footer={<div className="fl fla flb wf">
+            <button className="btn btn-s" onClick={()=>setEmailMd(null)}>Close</button>
+            <div className="fl g8">
+              <button className="btn btn-s" onClick={()=>navigator.clipboard.writeText(emailBody)}>Copy</button>
+              {student.parentEmail&&<button className="btn btn-p" onClick={()=>{
+                window.open(`mailto:${student.parentEmail}?subject=Update from ${TEACHER_NAME}&body=${encodeURIComponent(emailBody)}`);
+                setState(p=>({...p,parentEmails:{...p.parentEmails,[studentId]:[...(p.parentEmails[studentId]||[]),{type:emailMd.type,date:todayStr()}]}}));
+                setEmailMd(null);
+              }}>Open in Mail ↗</button>}
+            </div>
+          </div>}>
+          <div className="txs tsb mb8">To: {student.parentEmail||"No email on file"}</div>
+          <div className="ep">{emailBody}</div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+function Reports({state}) {
+  const [period,setPeriod]=useState("monthly");
+  const [reportDate,setReportDate]=useState(todayStr().slice(0,7));
+  const [forStudent,setForStudent]=useState("");
+  const [text,setText]=useState("");
+  const generate=()=>{
+    const {students,logs,attendance,incidents,grievances,juzTests}=state;
+    const today=todayStr();
+    let startDate,endDate,label;
+    if(period==="daily"){startDate=reportDate.length===10?reportDate:today;endDate=startDate;label=fmtDate(startDate);}
+    else if(period==="weekly"){
+      const dt=new Date((reportDate.length===10?reportDate:today)+"T12:00:00");
+      const day=dt.getDay();
+      const sun=new Date(dt);sun.setDate(dt.getDate()-day);
+      const sat=new Date(sun);sat.setDate(sun.getDate()+6);
+      startDate=sun.toISOString().slice(0,10);endDate=sat.toISOString().slice(0,10);
+      label=`Week of ${fmtDate(startDate)}`;
+    } else {
+      const pfx=reportDate.length>=7?reportDate.slice(0,7):today.slice(0,7);
+      startDate=pfx+"-01";
+      const lastDay=new Date(parseInt(pfx.slice(0,4)),parseInt(pfx.slice(5,7)),0).getDate();
+      endDate=pfx+"-"+String(lastDay).padStart(2,"0");
+      label=new Date(pfx+"-15").toLocaleDateString("en-US",{month:"long",year:"numeric"});
+    }
+    const ts=forStudent?students.filter(s=>s.id===forStudent):students;
+    const lines=[];
+    lines.push("═══════════════════════════════════════════════════════");
+    lines.push(ACADEMY_NAME);
+    lines.push(ACADEMY_SUBTITLE+` — ${period.charAt(0).toUpperCase()+period.slice(1)} Report`);
+    lines.push("Teacher: "+TEACHER_NAME);
+    lines.push("Period: "+label);
+    lines.push("Generated: "+fmtDate(today));
+    lines.push("═══════════════════════════════════════════════════════\n");
+    ts.forEach(s=>{
+      const sl=(logs[s.id]||[]).filter(l=>l.date>=startDate&&l.date<=endDate);
+      const sa=Object.entries(attendance[s.id]||{}).filter(([k])=>k>=startDate&&k<=endDate);
+      const p=sa.filter(([,v])=>v==="present").length;
+      const a=sa.filter(([,v])=>v==="absent").length;
+      const t=sa.filter(([,v])=>v==="tardy").length;
+      const sp=sl.filter(l=>l.sabqiResult==="pass").length;const st2=sl.filter(l=>l.sabqiResult).length||1;
+      const mp=sl.filter(l=>l.manzilResult==="pass").length;const mt=sl.filter(l=>l.manzilResult).length||1;
+      const inc=(incidents[s.id]||[]).filter(i=>i.date>=startDate&&i.date<=endDate);
+      const grv=(grievances[s.id]||[]).filter(g=>g.date>=startDate&&g.date<=endDate);
+      const jt=(juzTests?.[s.id]||[]).filter(t=>t.date>=startDate&&t.date<=endDate);
+      const mistakes=sl.flatMap(l=>l.mistakeTypes||[]);
+      const mf={};mistakes.forEach(m=>mf[m]=(mf[m]||0)+1);
+      const top=Object.entries(mf).sort((a2,b2)=>b2[1]-a2[1]).slice(0,3);
+      lines.push(`── ${s.name} ──`);
+      lines.push(`  Juz Memorized: ${(s.juzMemorized||[]).length} / 30`);
+      lines.push(`  Attendance: Present ${p} | Absent ${a} | Tardy ${t}`);
+      lines.push(`  Sessions: ${sl.length} | Sabqi Pass: ${Math.round(sp/st2*100)}% | Manzil Pass: ${Math.round(mp/mt*100)}%`);
+      lines.push(`  Late Sabaq: ${sl.filter(l=>l.sabaqLate).length} | Left Early: ${sl.filter(l=>l.leftEarly).length} | Late Lunch: ${sl.filter(l=>l.lateLunch).length}`);
+      if(top.length)lines.push(`  Common mistakes: ${top.map(([m,c])=>`${m} (${c}×)`).join(", ")}`);
+      if(jt.length)lines.push(`  Juz Tests: ${jt.map(t=>`Juz ${t.juz} — ${t.result}`).join(", ")}`);
+      if(inc.length){lines.push(`  ⚠ Incidents (${inc.length}):`);inc.forEach(i=>lines.push(`    • ${fmtDate(i.date)}: ${i.description}`));}
+      if(grv.length){lines.push(`  Grievances (${grv.length}):`);grv.forEach(g=>lines.push(`    • ${fmtDate(g.date)}: ${g.description}`));}
+      if(sl.length){
+        lines.push(`  Sessions detail:`);
+        sl.forEach(l=>{
+          const from=l.sabaqStartSurah?`${SURAHS.find(s=>s.n===l.sabaqStartSurah)?.name} ${l.sabaqStartAyah}`:juzQuarterLabel(l.sabaqJuzStart,l.sabaqQStart);
+          const to=l.sabaqEndSurah?`${SURAHS.find(s=>s.n===l.sabaqEndSurah)?.name} ${l.sabaqEndAyah}`:juzQuarterLabel(l.sabaqJuzEnd,l.sabaqQEnd);
+          lines.push(`    ${fmtDate(l.date)}: ${from} → ${to} | Sabqi: ${l.sabqiResult||"—"} | Manzil: ${l.manzilResult||"—"}`);
+        });
+      }
+      lines.push("");
+    });
+    setText(lines.join("\n"));
+  };
+  return (
+    <div className="fi">
+      <div className="tb-title mb20">Reports</div>
+      <div className="card mb20">
+        <div className="ctitle">Generate Report</div>
+        <div className="g3 mb16">
+          <Field label="Period">
+            <select className="inp sel" value={period} onChange={e=>setPeriod(e.target.value)}>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </Field>
+          <Field label={period==="daily"?"Date":"Month"}>
+            <input className="inp" type={period==="daily"?"date":"month"} value={reportDate} onChange={e=>setReportDate(e.target.value)}/>
+          </Field>
+          <Field label="Student (blank = all)">
+            <select className="inp sel" value={forStudent} onChange={e=>setForStudent(e.target.value)}>
+              <option value="">All Students</option>
+              {state.students.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </Field>
+        </div>
+        <button className="btn btn-p" onClick={generate}>Generate Report</button>
+      </div>
+      {text&&<div className="card">
+        <div className="fl fla flb mb16"><div className="ctitle mb0">Report</div><button className="btn btn-s btn-sm" onClick={()=>navigator.clipboard.writeText(text)}>Copy</button></div>
+        <div className="ep" style={{fontFamily:"DM Sans,sans-serif",fontSize:12}}>{text}</div>
+      </div>}
+    </div>
+  );
+}
+export default function HifzAcademy() {
+  const [state,setStateRaw]=useState(loadState);
+  const [view,setView]=useState("dashboard");
+  const [sel,setSel]=useState(null);
+  const setState=useCallback(updater=>{
+    setStateRaw(prev=>{const next=typeof updater==="function"?updater(prev):updater;saveState(next);return next;});
+  },[]);
+  const nav=[
+    {id:"dashboard",label:"Dashboard",icon:"🏠"},
+    {id:"students",label:"Students",icon:"👩‍🎓"},
+    {id:"reports",label:"Reports",icon:"📊"},
+  ];
+  return (
+    <>
+      <style>{G}</style>
+      <div className="hr">
+        <aside className="sb">
+          <div className="sb-logo">
+            <div className="sb-name">{ACADEMY_NAME}</div>
+            <div className="sb-sub">{ACADEMY_SUBTITLE}</div>
+          </div>
+          <div className="sb-teacher">{TEACHER_NAME}</div>
+          <nav>
+            <div className="sb-section">Navigation</div>
+            {nav.map(n=>(
+              <div key={n.id} className={`ni ${view===n.id||(view==="student"&&n.id==="students")?"on":""}`}
+                onClick={()=>{setView(n.id);if(n.id!=="students")setSel(null);}}>
+                <span className="ni-ic">{n.icon}</span>{n.label}
+              </div>
+            ))}
+          </nav>
+          <div style={{padding:"12px 16px",borderTop:"1px solid #2a3e3e",fontSize:10,color:"#3a5050",marginTop:"auto"}}>
+            {new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}
+          </div>
+        </aside>
+        <main className="main">
+          <div className="topbar">
+            <div className="tb-title">
+              {view==="dashboard"?"Dashboard":view==="students"?"Students":view==="student"&&sel?state.students.find(s=>s.id===sel)?.name||"Student":"Reports"}
+            </div>
+            <div className="tb-date">{new Date().toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}</div>
+          </div>
+          <div className="content">
+            {view==="dashboard"&&<Dashboard state={state} setState={setState} setView={setView} setSel={setSel}/>}
+            {view==="students"&&<StudentList state={state} setState={setState} setView={setView} setSel={setSel}/>}
+            {view==="student"&&sel&&<StudentDetail studentId={sel} state={state} setState={setState} onBack={()=>setView("students")}/>}
+            {view==="reports"&&<Reports state={state}/>}
+          </div>
+        </main>
+      </div>
+    </>
+  );
+}
+
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<HifzAcademy />);
+  </script>
+</body>
+</html>
